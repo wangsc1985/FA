@@ -1,0 +1,53 @@
+﻿<my:DialogBase xmlns:my="clr-namespace:FuturesAssistantWPF.Windows"
+               x:Class="FuturesAssistantWPF.Windows.SetTargetDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="均线参数" x:Name="_dialog"  Height="190" Width="310"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Loaded="Window_Loaded" MouseWheel="_window_MouseWheel">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <GroupBox Width="150" Height="90">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <TextBlock Text="月目标涨幅" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Margin="20,0" Orientation="Horizontal">
+                            <TextBox Name="_numericUpDownMonthTarget" Width="30" Height="20" TextChanged="_numericUpDownMonthTarget_TextChanged" MouseWheel="_numericUpDownMonthTarget_MouseWheel"></TextBox>
+                            <TextBlock>%</TextBlock>
+                            <TextBlock Name="_labelMonthTargetColor" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center"  MouseLeftButtonDown="_labelMonthTargetColor_MouseLeftButtonDown" />
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Width="150" Height="90" Visibility="Collapsed">
+                    <StackPanel Orientation="Vertical" >
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <TextBlock Text="季度目标涨幅" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Margin="20,0" Orientation="Horizontal">
+                            <TextBox Name="_numericUpDownQuarterTarget" Width="30" Height="20" TextChanged="_numericUpDownQuarterTarget_TextChanged" MouseWheel="_numericUpDownQuarterTarget_MouseWheel"></TextBox>
+                            <TextBlock>%</TextBlock>
+                            <TextBlock Name="_labelQuarterTargetColor" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center"  MouseLeftButtonDown="_labelQuarterTargetColor_MouseLeftButtonDown" />
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Width="150" Height="90" Visibility="Collapsed">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <TextBlock Text="年度目标涨幅" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Margin="20,0" Orientation="Horizontal">
+                            <TextBox Name="_numericUpDownYearTarget" Width="30" Height="20" TextChanged="_numericUpDownYearTarget_TextChanged" MouseWheel="_numericUpDownYearTarget_MouseWheel"></TextBox>
+                            <TextBlock>%</TextBlock>
+                            <TextBlock Name="_labelYearTargetColor" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center"  MouseLeftButtonDown="_labelYearTargetColor_MouseLeftButtonDown" />
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button IsDefault="True" Name="_button确认" Margin="10" Width="100" Content="确认" Click="_button确认_Click"></Button>
+                <Button Name="_button退出" Margin="10" Width="100" Content="退出" Click="_button退出_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</my:DialogBase>

@@ -1,0 +1,28 @@
+﻿<my:DialogBase
+    xmlns:my="clr-namespace:FuturesAssistantWPF.Windows"  x:Class="FuturesAssistantWPF.Windows.ImportCooperateDataDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="导入账户添加数据" Height="330" Width="300">
+    <Grid>
+
+        <Grid>
+            <GroupBox Margin="10">
+                <StackPanel Name="_stack操作" Margin="10,0,0,0">
+                    <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,10,0,0">
+                        <TextBlock Text="×号表示已经导入了数据" TextAlignment="Center" FontSize="14" />
+                        <TextBlock Text="空白表示未导入数据" TextAlignment="Center" FontSize="14" />
+                        <Calendar Name="_datePicker日期"   HorizontalAlignment="Center" ToolTip="只是辅助显示已经导入的数据，不用手动选择。" VerticalAlignment="Top" Margin="0,10,0,0" FirstDayOfWeek="Monday"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Grid>
+                            <Button x:Name="_btn自动填充数据" Content="自动补齐空白数据" HorizontalAlignment="Center" Width="120" Margin="0" Click="_btn自动填充数据_Click" />
+                            <Button  x:Name="_btn结算文件" Visibility="Collapsed" Content="结算文件" HorizontalAlignment="Center" Width="120" Margin="0" Click="_btn结算文件_Click" />
+                            <ProgressBar Visibility="Hidden" x:Name="_progress填充进度"></ProgressBar>
+                        </Grid>
+                    </StackPanel>
+
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</my:DialogBase>

@@ -1,0 +1,168 @@
+﻿<UserControl x:Class="FuturesAssistantWPF.Controls.AccountManagerUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <Control.Resources>
+        <Style TargetType="TextBlock" x:Key="title">
+            <Setter Property="HorizontalAlignment" Value="Left" /> 
+            <Setter Property="FontWeight" Value="Bold"/>
+            <!--<Setter Property="Foreground" Value="Gray"/>-->
+        </Style>
+        <Style TargetType="TextBlock" x:Key="lable">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <!--<Setter Property="FontWeight" Value="Bold"/>-->
+        </Style>
+        <Style TargetType="TextBlock" x:Key="text">
+            <Setter Property="FontFamily" Value="Consolas" />
+        </Style>
+    </Control.Resources>
+    <Grid>
+
+        <DockPanel Name="_grid账户">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" DockPanel.Dock="Bottom" Margin="0,5,0,5">
+                <Button Margin="0,0,0,0" Width="100"  Content="添加交易账户" Click="_button添加账户_Click"/>
+                <Button Margin="5,0,10,0" Width="100"  Content="添加配资账户" Click="_button添加配资账户_Click"  Visibility="Collapsed"/>
+            </StackPanel>
+            <!--<ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">-->
+            <DockPanel VerticalAlignment="Center">
+                <GroupBox Name="_gb配资账户" DockPanel.Dock="Top" Header="配资账户"  Visibility="Collapsed">
+                    <DockPanel>
+                        <ScrollViewer Template="{DynamicResource ScrollViewerControlTemplate1}" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="stackPanel2" Margin="5" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                <ListBox x:Name="_listBox配资账户列表" FontFamily="Consolas" Style="{DynamicResource ListBoxStyle}" VerticalAlignment="Center" Padding="5,0" VerticalContentAlignment="Top" ContextMenuOpening="_listBox配资账户列表_ContextMenuOpening" SelectionChanged="_listBox配资账户列表_SelectionChanged">
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu Name="_menuP">
+                                            <MenuItem Name="_menuItemP列表显示"  Header="列表显示" Click="_menuItem列表显示_Click" />
+                                            <MenuItem Name="_menuItemP列表隐藏"  Header="列表隐藏" Click="_menuItem列表隐藏_Click"/>
+                                            <MenuItem Name="_menuItemP修改账户" Header="修改账户"  Click="_menuItem修改账户_Click"/>
+                                            <MenuItem Name="_menuItemP查看数据" Header="查看数据"  Click="_menuItemP查看数据_Click"/>
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="5">
+                                                    <TextBlock  Style="{DynamicResource title}"  Text="{Binding FuturesCompanyName}" />
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="户名：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding CustomerName}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="账号：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding AccountNumber}" Style="{DynamicResource text}"/>
+                                                        <TextBlock Text="（" Style="{DynamicResource text}"/>
+                                                        <TextBlock Text="{Binding Password}" Style="{DynamicResource text}"/>
+                                                        <TextBlock Text="）" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock  Text="余额：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding Balance}"  Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="盈亏：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding Profit}" Foreground="{Binding ProfitForeground}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="数据日期：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding LatestDataDate}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <Button Content="列表隐藏" Visibility="{Binding State1}" Width="60" Style="{DynamicResource mark}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), 
+            RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
+            ItemWidth="{Binding (ListView.View).ItemWidth, 
+            RelativeSource={RelativeSource AncestorType=ListView}}"
+            MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}"
+            ItemHeight="{Binding (ListView.View).ItemHeight, 
+            RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Name="_gb交易账号" DockPanel.Dock="Top" Header="交易账户">
+                    <DockPanel>
+                        <ScrollViewer Template="{DynamicResource ScrollViewerControlTemplate1}" VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="stackPanel1" Margin="5" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                <ListBox x:Name="_listBox交易账户列表" Style="{DynamicResource ListBoxStyle}" VerticalAlignment="Center" Padding="5,0" ContextMenuOpening="_listBox交易账户列表_ContextMenuOpening" SelectionChanged="_listBox交易账户列表_SelectionChanged">
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu Name="_contextMenu交易账户列表">
+                                            <MenuItem Name="_menuItemJ列表显示" Header="列表显示" Click="_menuItem列表显示_Click"/>
+                                            <MenuItem Name="_menuItemJ列表隐藏"  Header="列表隐藏"  Click="_menuItem列表隐藏_Click"/>
+                                            <MenuItem Name="_menuItemJ允许下载" Header="允许下载"  Click="_menuItem允许下载_Click"/>
+                                            <MenuItem Name="_menuItemJ禁止下载"  Header="禁止下载" Click="_menuItem禁止下载_Click"/>
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <StackPanel Orientation="Vertical" Margin="5">
+                                                    <TextBlock  Style="{DynamicResource title}" Text="{Binding FuturesCompanyName}"/>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="户名：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding CustomerName}"  Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="账号：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding AccountNumber}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="余额：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding Balance}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock   Text="盈亏：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding Profit}" Foreground="{Binding ProfitForeground}" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <TextBlock Text="数据日期：" Style="{DynamicResource lable}"/>
+                                                        <TextBlock Text="{Binding LatestDataDate}" Visibility="Visible" Style="{DynamicResource text}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"  Margin="0,5,0,0">
+                                                        <Button Content="列表隐藏" Visibility="{Binding State1}" Width="60" Style="{DynamicResource mark}" />
+                                                        <Button Content="禁止下载" Margin="5,0,0,0" Visibility="{Binding State2}" Width="60" Style="{DynamicResource mark}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), 
+            RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
+            ItemWidth="{Binding (ListView.View).ItemWidth, 
+            RelativeSource={RelativeSource AncestorType=ListView}}"
+            MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}"
+            ItemHeight="{Binding (ListView.View).ItemHeight, 
+            RelativeSource={RelativeSource AncestorType=ListView}}" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </GroupBox>
+                <!--<StackPanel Orientation="Horizontal"  Margin="0,5,0,0" DockPanel.Dock="Top" HorizontalAlignment="Center">
+                    <Button Name="_btn显示账户" CommandParameter="{Binding Id}" Margin="5,0,0,0" Width="80" Height="22" Click="_btn显示账户_Click" Content="列表显示"></Button>
+                    <Button Name="_btn隐藏账户" CommandParameter="{Binding Id}" Margin="5,0,0,0" Width="80" Height="22" Click="_btn隐藏账户_Click" Content="不在列表显示"></Button>
+                    <Button Name="_btn修改账户" CommandParameter="{Binding Id}" Margin="5,0,0,0" Width="80" Height="22" Click="_btn修改账户_Click" Content="修改账户"></Button>
+                    <Button Name="_btn跟随下载" CommandParameter="{Binding Id}" Margin="5,0,0,0" Width="80" Height="22" Click="_btn跟随下载_Click" Content="跟随下载"></Button>
+                    <Button Name="_btn不跟随下载" CommandParameter="{Binding Id}" Margin="5,0,5,0" Width="80" Height="22" Click="_btn不跟随下载_Click" Content="不跟随下载"></Button>
+                </StackPanel>-->
+            </DockPanel>
+            <!--</ScrollViewer>-->
+        </DockPanel>
+    </Grid>
+</UserControl>
