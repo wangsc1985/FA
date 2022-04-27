@@ -2101,6 +2101,7 @@ namespace FuturesAssistantWPF.Helpers
         [System.Runtime.InteropServices.DllImport("User32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         public static extern int GetWindowThreadProcessId(IntPtr hwnd, out   int ID);
 
+
         private static void ParseExcelStatement(StatementContext statement, string excelFilePath,
             out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittanceTotal, out decimal? amount, Guid accountId)
         {

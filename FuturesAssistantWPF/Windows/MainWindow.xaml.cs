@@ -38,9 +38,6 @@ namespace FuturesAssistantWPF.Windows
         {
             try
             {
-
-
-
                 this.loginWindowHandler = loginWindowHandler;
                 InitializeComponent();
                 Initialize();

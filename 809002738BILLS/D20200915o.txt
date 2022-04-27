@@ -1,0 +1,35 @@
+                                        国金期货有限责任公司                                        
+                                                                    制表时间 Creation Date：20200915
+----------------------------------------------------------------------------------------------------
+                             交易结算单(盯市) Settlement Statement(MTM)                             
+客户号 Client ID：  809002738          客户名称 Client Name：王世起
+日期 Date：20200915
+
+                   资金状况  币种：人民币  Account Summary  Currency：CNY 
+----------------------------------------------------------------------------------------------------
+期初结存 Balance b/f：                      780.04  基础保证金 Initial Margin：                20.00
+出 入 金 Deposit/Withdrawal：                 0.00  期末结存 Balance c/f：                    780.04
+平仓盈亏 Realized P/L：                       0.00  质 押 金 Pledge Amount：                    0.00
+持仓盯市盈亏 MTM P/L：                        0.00  客户权益 Client Equity：：                780.04
+期权执行盈亏 Exercise P/L：                   0.00  货币质押保证金占用 FX Pledge Occ.：         0.00
+手 续 费 Commission：                         0.00  保证金占用 Margin Occupied：                0.00
+行权手续费 Exercise Fee：                     0.00  交割保证金 Delivery Margin：                0.00
+交割手续费 Delivery Fee：                     0.00  多头期权市值 Market value(long)：           0.00
+货币质入 New FX Pledge：                      0.00  空头期权市值 Market value(short)：          0.00
+货币质出 FX Redemption：                      0.00  市值权益 Market value(equity)：           780.04
+质押变化金额 Chg in Pledge Amt：              0.00  可用资金 Fund Avail.：                    780.04
+权利金收入 Premium received：                 0.00  风 险 度 Risk Degree：                     0.00%
+权利金支出 Premium paid：                     0.00  应追加资金 Margin Call：                    0.00
+货币质押变化金额 Chg in FX Pledge:            0.00
+
+尊敬的客户：
+.     为了保障您的保证金安全，中国期货市场监控中心要求期货公司发送每日的《交易结算单》，您
+可以按照您的用户名、密码，登陆www.cfmmc.com期货市场监控中心网站，查询自己当日的《交易结算单》。
+按合同规定，在下一交易日开市前30分钟，如不以书面形式提出异议，则视为确认本帐单的所有数据。
+如有疑问，请立即向期货公司询问，我们将予以答复。.
+.
+.
+.
+.     经办方：国金期货有限责任公司        委托人签字：
+
+

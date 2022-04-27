@@ -106,8 +106,9 @@
                                     <StackPanel Margin="30,0,0,0">
                                         <TextBlock HorizontalAlignment="Left" Margin="10,15,0,0">备份数据</TextBlock>
                                         <StackPanel Orientation="Horizontal" Margin="10,10">
-                                            <Button x:Name="_btnToEmail"  Margin="0,0,0,0" Width="100" Height="50" Content="备份到邮箱" Click="_btnToEmail_Click"></Button>
+                                            <!--<Button x:Name="_btnToEmail"  Margin="0,0,0,0" Width="100" Height="50" Content="备份到邮箱" Click="_btnToEmail_Click"></Button>-->
                                             <Button x:Name="_btnFromEmail"  Margin="5,0,0,0" Width="100" Height="50"  Content="从备份恢复" Click="_btnFromEmail_Click"></Button>
+                                            <Button x:Name="_btnTest"  Margin="5,0,0,0" Width="100" Height="50"  Content="导入其他数据" Click="_btnTest_Click"></Button>
                                         </StackPanel>
                                         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0">删除数据</TextBlock>
                                         <StackPanel Orientation="Horizontal" Margin="10,0">

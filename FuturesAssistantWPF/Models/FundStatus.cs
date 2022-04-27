@@ -83,9 +83,6 @@ namespace FuturesAssistantWPF.Models
         /// 保证金占用
         /// </summary>
         public decimal Margin { get; set; }
-        /// <summary>
-        /// 手续费
-        /// </summary>
         public string PositionRatio
         {
             get
@@ -96,6 +93,9 @@ namespace FuturesAssistantWPF.Models
                     return Margin / TodayBalance == 0 ? "" : (Margin / TodayBalance * 100).ToString("0.00") + "%";
             }
         }
+        /// <summary>
+        /// 手续费
+        /// </summary>
         public decimal Commission { get; set; }
         /// <summary>
         /// 可用保证金

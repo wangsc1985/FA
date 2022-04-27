@@ -417,7 +417,7 @@ namespace FuturesAssistantWPF.Controls
             // 
             label15.AutoSize = true;
             label15.BackColor = System.Drawing.Color.Black;
-            label15.Font = new System.Drawing.Font("新宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            label15.Font = new System.Drawing.Font("新宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             label15.ForeColor = System.Drawing.Color.White;
             label15.Location = new System.Drawing.Point(3, 229);
             label15.Name = "label15";
@@ -1547,8 +1547,8 @@ namespace FuturesAssistantWPF.Controls
                 _label最高.Text = stock.High.ToString("N");
                 _label最低.Text = stock.Low.ToString("N");
                 _label量.Text = stock.Volume.ToString("N");
-                _label利润.Text = (stock.Close - stock.Open).ToString("N");
-                _label涨幅.Text = stock.Open <= 0 ? "" : ((stock.Close - stock.Open) / stock.Open * 100).ToString("0.00") + "%"; ;
+                _label利润.Text = "（"+(stock.Close - stock.Open).ToString("N")+"）";
+                _label涨幅.Text = stock.Open <= 0 ? "" : ((stock.Close - stock.Open) / stock.Open * 100).ToString("0.00") + "%";
                 if (stock.Close > stock.Open)
                 {
                     _label收盘.ForeColor = System.Drawing.Color.Red;
