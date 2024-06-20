@@ -1254,16 +1254,20 @@ namespace FuturesAssistantWPF.Controls
                         for (int i = 0; i < commodityProfits.Count(); i++)
                         {
                             DataPoint dataPoint = new DataPoint(i + 1, commodityProfits[i].Profit.ToString("0.00"));
-                            //var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(commodityProfits[i].Commodity.ToLower()));
+                            var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(commodityProfits[i].Commodity.ToLower()));
                             string label = commodityProfits[i].Commodity.ToLower();
 
-                            try
+                            if (comm != null)
                             {
-                                label = _Session.Commoditys[label];
+                                label = comm.Name;
                             }
-                            catch (Exception)
-                            {
-                            }
+                            //try
+                            //{
+                            //    label = _Session.Commoditys[label];
+                            //}
+                            //catch (Exception)
+                            //{
+                            //}
 
                             dataPoint.Label = label;
                             //dataPoint.AxisLabel = commodityProfits[i].Commodity;

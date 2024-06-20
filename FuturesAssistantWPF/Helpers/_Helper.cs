@@ -15,6 +15,8 @@ using Microsoft.Office.Interop.Excel;
 using System.Data.OleDb;
 using System.Data;
 using System.Windows;
+using System.Windows.Forms;
+using MessageBox = System.Windows.MessageBox;
 
 namespace FuturesAssistantWPF.Helpers
 {
@@ -69,7 +71,7 @@ namespace FuturesAssistantWPF.Helpers
         {
             DispatcherFrame frame = new DispatcherFrame();
             Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background,
-                new DispatcherOperationCallback(delegate(object f)
+                new DispatcherOperationCallback(delegate (object f)
                 {
                     ((DispatcherFrame)f).Continue = false;
 
@@ -1723,6 +1725,7 @@ namespace FuturesAssistantWPF.Helpers
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 Stream stream = response.GetResponseStream();
                 StreamReader reader = new StreamReader(stream, Encoding.GetEncoding("utf-8"));
+
                 string htmlStatementHomePage = reader.ReadToEnd();
                 request.Abort();
                 response.Close();
@@ -1774,18 +1777,43 @@ namespace FuturesAssistantWPF.Helpers
                     // 持仓明细
                     positionDetails = GetPositionDetailsFromHtml(cookie, tradeDate, statement, accountId);
 
+                    //if (fundStatus.Date.Date == DateTime.Today.Date)
+                    //{
+                    //    var result = MessageBox.Show("数据合法性", $"交易汇总：{trades.Count}条数据；出入金汇总：{remittances.Count}条数据；持仓汇总：{positions.Count}条数据。", MessageBoxButtons.YesNo);
+                    //    if (result == DialogResult.Yes)
+                    //    {
+                    //        // 检查当天报表中明细数据是否完整。
+                    //        if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
+                    //        {
+                    //            statement.AddFundStatus(fundStatus);
+                    //            statement.AddRemittances(remittances);
+                    //            statement.AddTrades(trades);
+                    //            statement.AddPositions(positions);
+                    //            statement.AddCommoditySummarizations(commoditySummarizations);
+                    //            statement.AddTradeDetails(tradeDetails);
+                    //            statement.AddClosedTradeDetails(closedTradeDetails);
+                    //            isCheckDataValid = true;
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        isCheckDataValid = false;
+                    //    }
 
-                    // 检查当天报表中明细数据是否完整。
-                    if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
-                    {
-                        statement.AddFundStatus(fundStatus);
-                        statement.AddRemittances(remittances);
-                        statement.AddTrades(trades);
-                        statement.AddPositions(positions);
-                        statement.AddCommoditySummarizations(commoditySummarizations);
-                        statement.AddTradeDetails(tradeDetails);
-                        statement.AddClosedTradeDetails(closedTradeDetails);
-                    }
+                    //}
+                    //else
+                    //{                            // 检查当天报表中明细数据是否完整。
+                        if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
+                        {
+                            statement.AddFundStatus(fundStatus);
+                            statement.AddRemittances(remittances);
+                            statement.AddTrades(trades);
+                            statement.AddPositions(positions);
+                            statement.AddCommoditySummarizations(commoditySummarizations);
+                            statement.AddTradeDetails(tradeDetails);
+                            statement.AddClosedTradeDetails(closedTradeDetails);
+                        }
+                    //}
                 }
                 //
                 tryCount = 0;
@@ -2099,7 +2127,7 @@ namespace FuturesAssistantWPF.Helpers
         }
 #if true
         [System.Runtime.InteropServices.DllImport("User32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        public static extern int GetWindowThreadProcessId(IntPtr hwnd, out   int ID);
+        public static extern int GetWindowThreadProcessId(IntPtr hwnd, out int ID);
 
 
         private static void ParseExcelStatement(StatementContext statement, string excelFilePath,

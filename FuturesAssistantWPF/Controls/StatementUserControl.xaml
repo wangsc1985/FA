@@ -53,8 +53,17 @@
                         </StackPanel>
                     </Grid>
                 </GroupBox>
+
+                <!--<GroupBox DockPanel.Dock="Top" Margin="10,30,10,10" Header="合约" Width="220" VerticalAlignment="Top">
+                    <Grid>
+                        <StackPanel x:Name="_spItems" HorizontalAlignment="Center" Orientation="Vertical" Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="2" >
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>-->
                 <TextBlock DockPanel.Dock="Top" Name="_textBlock实时状态" FontSize="12px" Margin="10,0" TextAlignment="Left" Text="" Visibility="Collapsed">正在更新</TextBlock>
                 <ProgressBar DockPanel.Dock="Top"  Name="_progressBar进度" Margin="10,10" Visibility="Collapsed" Height="10" />
+                <ListBox x:Name="_listBox合约" Width="240" Margin="20,20,20,20" SelectionChanged="_listBox合约_SelectionChanged"/>
+
             </DockPanel>
             <Grid  Margin="10" DockPanel.Dock="Left" >
                 <Grid x:Name="_loading"  Opacity="0.5" Background="White" Panel.ZIndex="1" Visibility="Hidden"/>

@@ -1608,18 +1608,24 @@ namespace FuturesAssistantWPF.Controls
 
         private void _chart_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            if (_showCursorXY || _showStatisticsCursorXY)
+            try
             {
-                Stock stock = null;
-                var cursorX = _stockChart.ChartAreas["Price"].AxisX.PixelPositionToValue(e.X)._ToStockPosition();
-                var cursorY = _stockChart.ChartAreas["Price"].AxisY.PixelPositionToValue(e.Y)._ToStockPosition();
-                _stockChart.ChartAreas["Price"].CursorX.Position = cursorX;
-                _stockChart.ChartAreas["Price"].CursorY.Position = cursorY;
-                if (cursorX > 0 && cursorX <= _currentCycleStocks.Count)
-                    stock = _currentCycleStocks[(int)cursorX - 1];
-                //
-                RefreshInfoBoard(stock);
-                RefreshAverageTitle(cursorX, stock);
+                if (_showCursorXY || _showStatisticsCursorXY)
+                {
+                    Stock stock = null;
+                    var cursorX = _stockChart.ChartAreas["Price"].AxisX.PixelPositionToValue(e.X)._ToStockPosition();
+                    var cursorY = _stockChart.ChartAreas["Price"].AxisY.PixelPositionToValue(e.Y)._ToStockPosition();
+                    _stockChart.ChartAreas["Price"].CursorX.Position = cursorX;
+                    _stockChart.ChartAreas["Price"].CursorY.Position = cursorY;
+                    if (cursorX > 0 && cursorX <= _currentCycleStocks.Count)
+                        stock = _currentCycleStocks[(int)cursorX - 1];
+                    //
+                    RefreshInfoBoard(stock);
+                    RefreshAverageTitle(cursorX, stock);
+                }
+            }
+            catch (Exception)
+            {
             }
         }
 

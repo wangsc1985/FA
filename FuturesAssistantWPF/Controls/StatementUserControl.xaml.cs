@@ -46,7 +46,7 @@ namespace FuturesAssistantWPF.Controls
         // 事件
         private void _buttonQuery_Click(object sender, RoutedEventArgs e)
         {
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
             AllQueryButtonEnabled();
         }
@@ -76,7 +76,7 @@ namespace FuturesAssistantWPF.Controls
             _dateTimePicker开始.SelectedDate = _Session.LatestFundStatusDate;
             _dateTimePicker结束.SelectedDate = _Session.LatestFundStatusDate;
             //
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
         }
 
@@ -90,7 +90,7 @@ namespace FuturesAssistantWPF.Controls
             _dateTimePicker开始.SelectedDate = _Session.LatestFundStatusDate.AddDays(DayOfWeek.Monday - _Session.LatestFundStatusDate.DayOfWeek);
             _dateTimePicker结束.SelectedDate = _Session.LatestFundStatusDate;
             //
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
         }
 
@@ -104,7 +104,7 @@ namespace FuturesAssistantWPF.Controls
             _dateTimePicker开始.SelectedDate = new DateTime(_Session.LatestFundStatusDate.Year, _Session.LatestFundStatusDate.Month, 1);
             _dateTimePicker结束.SelectedDate = _Session.LatestFundStatusDate;
             //
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
         }
 
@@ -118,7 +118,7 @@ namespace FuturesAssistantWPF.Controls
             _dateTimePicker开始.SelectedDate = new DateTime(_Session.LatestFundStatusDate.Year, 1, 1);
             _dateTimePicker结束.SelectedDate = _Session.LatestFundStatusDate;
             //
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
         }
 
@@ -136,7 +136,7 @@ namespace FuturesAssistantWPF.Controls
                 _dateTimePicker开始.SelectedDate = _Session.LatestFundStatusDate;
             _dateTimePicker结束.SelectedDate = _Session.LatestFundStatusDate;
             //
-            Thread query = new Thread(new ThreadStart(Query));
+            Thread query = new Thread(() => Query(false));
             query.Start();
         }
 
@@ -192,7 +192,7 @@ namespace FuturesAssistantWPF.Controls
             }
         }
 
-        private void Query()
+        private void Query(bool isFromListSelected = false)
         {
             try
             {
@@ -217,6 +217,7 @@ namespace FuturesAssistantWPF.Controls
                 {
                     using (StatementContext statement = new StatementContext())
                     {
+
                         DateTime endDateNext = endDate.Value.Date.AddDays(1);
                         var fundStatus = statement.FundStatus
                             .Where(fs => fs.AccountId == _Session.SelectedAccountId && fs.Date <= endDateNext && fs.Date >= startDate.Value)
@@ -230,6 +231,17 @@ namespace FuturesAssistantWPF.Controls
                             .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value)
                             .OrderBy(t => t.Date);
 
+                        var codeList = new List<string>();
+                        if (!isFromListSelected)
+                        {
+                            foreach (var td in trades)
+                            {
+                                if (codeList.FirstOrDefault(a => a.Equals(td.Item)) == null)
+                                {
+                                    codeList.Add(td.Item);
+                                }
+                            }
+                        }
                         var positions = statement.Positions
                             .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value)
                             .OrderBy(p => p.Date);
@@ -246,21 +258,101 @@ namespace FuturesAssistantWPF.Controls
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value)
                             .OrderBy(ctd => ctd.ActualDate);
 
+                        Dispatcher.Invoke(new FormControlInvoker(() =>
+                        {
+
+                            if (_listBox合约.SelectedItems.Count == 1)
+                            {
+                                var cc = _listBox合约.SelectedItem.ToString();
+                                trades = statement.Trades
+                            .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value && t.Item.Equals(cc))
+                            .OrderBy(t => t.Date);
+
+                                tradeDetails = statement.TradeDetails
+                                    .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value && td.Item.Equals(cc))
+                                    .OrderBy(td => td.ActualTime);
+
+                                closedTradeDetails = statement.ClosedTradeDetails
+                            .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value && ctd.Item.Equals(cc))
+                            .OrderBy(ctd => ctd.ActualDate);
+
+                                positions = statement.Positions
+                                .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value && p.Item.Equals(cc))
+                                .OrderBy(p => p.Date);
+                            }
+
+                        }));
                         var positionDetails = statement.PositionDetails
                             .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value)
                             .OrderBy(pd => pd.DateForPosition);
 
+                        foreach (var td in tradeDetails)
+                        {
+                            if (td.ActualTime.Hour > 15)
+                            {
+                                if (td.ActualTime.DayOfWeek == DayOfWeek.Monday)
+                                {
+                                    td.ActualTime = td.ActualTime.AddDays(-3);
+                                }
+                                else
+                                {
+                                    td.ActualTime = td.ActualTime.AddDays(-1);
+                                }
+                            }
+                        }
+
+                        tradeDetails = tradeDetails.OrderBy(m => m.ActualTime);
+
+                        var tradeList = new List<Trade>();
+                        foreach (var td in tradeDetails)
+                        {
+                            var trade = tradeList.FirstOrDefault(m => m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
+                            if (trade == null)
+                            {
+                                trade = new Trade();
+                                trade.AccountId = td.AccountId;
+                                trade.Amount = td.Amount;
+                                trade.BS = td.BS;
+                                trade.Commission = td.Commission;
+                                trade.ClosedProfit = td.ClosedProfit;
+                                trade.Date = td.ActualTime;
+                                trade.Item = td.Item;
+                                trade.OC = td.OC;
+                                trade.Price = td.Price;
+                                trade.Size = td.Size;
+                                tradeList.Add(trade);
+                            }
+                            else
+                            {
+                                trade.Amount += td.Amount;
+                                trade.Commission += td.Commission;
+                                trade.ClosedProfit += td.ClosedProfit;
+                                trade.Date = td.ActualTime;
+                                trade.Size += td.Size;
+                            }
+                        }
+
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {
+                            if (!isFromListSelected)
+                            {
+                                _listBox合约.Items.Clear();
+                                foreach (var code in codeList)
+                                {
+                                    _listBox合约.Items.Add(code);
+                                }
+                            }
                             _loading.Visibility = System.Windows.Visibility.Hidden;
                             _dataGrid资金状况.ItemsSource = fundStatus.ToList();
                             _dataGrid出入金明细.ItemsSource = remittances.ToList();
-                            _dataGrid成交汇总.ItemsSource = trades.ToList();
+                            _dataGrid成交汇总.ItemsSource = tradeList;
                             _dataGrid持仓汇总.ItemsSource = positions.ToList();
                             _dataGrid品种汇总.ItemsSource = commoditys.ToList();
                             _dataGrid成交明细.ItemsSource = tradeDetails.ToList();
                             _dataGrid平仓明细.ItemsSource = closedTradeDetails.ToList();
                             _dataGrid持仓明细.ItemsSource = positionDetails.ToList();
+
+
                         }));
 
                     }
@@ -294,6 +386,13 @@ namespace FuturesAssistantWPF.Controls
         }
 
         private string saveDirPath = System.Windows.Forms.Application.StartupPath + "\\statement";
+
+        private void _listBox合约_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Thread query = new Thread(() => Query(true));
+            query.Start();
+        }
+
 
 #if false
         private void Backup()
