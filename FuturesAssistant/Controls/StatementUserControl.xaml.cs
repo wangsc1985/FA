@@ -288,6 +288,9 @@ namespace FuturesAssistant.Controls
                         var closedTradeDetails = statement.ClosedTradeDetails
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value)
                             .OrderBy(ctd => ctd.ActualDate);
+                        var positionDetails = statement.PositionDetails
+                            .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value)
+                            .OrderBy(pd => pd.DateForPosition);
 
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {
@@ -300,25 +303,26 @@ namespace FuturesAssistant.Controls
                                 var tradeType = ccs[1];
 
                                 trades = statement.Trades
-                            .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value && t.Item.Equals(cc)&&TradeTypeString(t).Equals(tradeType))
-                            .OrderBy(t => t.Date);
+                                .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value && t.Item.Equals(cc) && TradeTypeString(t).Equals(tradeType))
+                                .OrderBy(t => t.Date);
 
                                 tradeDetails = statement.TradeDetails
-                                    .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value && td.Item.Equals(cc) && TradeTypeString(td).Equals(tradeType))
-                                    .OrderBy(td => td.ActualTime);
+                                .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value && td.Item.Equals(cc) && TradeTypeString(td).Equals(tradeType))
+                                .OrderBy(td => td.ActualTime);
 
                                 closedTradeDetails = statement.ClosedTradeDetails
-                            .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value && ctd.Item.Equals(cc))
-                            .OrderBy(ctd => ctd.ActualDate);
+                                .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value && ctd.Item.Equals(cc))
+                                .OrderBy(ctd => ctd.ActualDate);
 
                                 positions = statement.Positions
                                 .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value && p.Item.Equals(cc))
                                 .OrderBy(p => p.Date);
+
+                                positionDetails = statement.PositionDetails
+                                .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value && pd.Item.Equals(cc))
+                                .OrderBy(pd => pd.DateForPosition);
                             }
                         }));
-                        var positionDetails = statement.PositionDetails
-                            .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value)
-                            .OrderBy(pd => pd.DateForPosition);
 
                         foreach (var td in tradeDetails)
                         {
