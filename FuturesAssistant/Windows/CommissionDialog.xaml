@@ -1,0 +1,11 @@
+﻿<my:DialogBase
+    xmlns:my="clr-namespace:FuturesAssistant.Windows"
+    x:Class="FuturesAssistant.Windows.CommissionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:Controls="clr-namespace:FuturesAssistant.Controls" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="查询交易手续费" x:Name="_dialog" Height="600 " Width="1100" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" >
+    <Grid>
+        <Controls:ExchangeCommissionUserControl x:Name="_exchangeCommissionUserControl" />
+    </Grid>
+</my:DialogBase>

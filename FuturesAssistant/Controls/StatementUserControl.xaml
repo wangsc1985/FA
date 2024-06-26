@@ -1,0 +1,205 @@
+﻿<UserControl xmlns:Controls="clr-namespace:FuturesAssistant.Controls"  x:Class="FuturesAssistant.Controls.StatementUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+             xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+             xmlns:CHR="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1000" Background="White">
+
+    <Control.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextAlignment" Value="Right" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Control.Resources>
+
+    <Grid>
+        <DockPanel>
+            <DockPanel DockPanel.Dock="Right" LastChildFill="False" >
+                <GroupBox DockPanel.Dock="Top" Margin="10,30,10,10" Header="查询" Width="220" Height="180" VerticalAlignment="Top">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" >开始时间：</TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" >结束时间：</TextBlock>
+                        <DatePicker Name="_dateTimePicker开始" Margin="0,0,10,0"   Grid.Row="0" Grid.Column="1" />
+                        <DatePicker Name="_dateTimePicker结束" Margin="0,0,10,0"   Grid.Row="1" Grid.Column="1" />
+                        <Button Name="_buttonQuery" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                          Width="100" Content="查询" Click="_buttonQuery_Click" Height="30">
+                        </Button>
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="2" >
+                            <Button Name="_buttonDayQuery" Margin="2,0" Width="30" Content="今" Click="_buttonDayQuery_Click"/>
+                            <Button Name="_buttonWeekQuery" Margin="2,0" Width="30" Content="周" Click="_buttonWeekQuery_Click"/>
+                            <Button Name="_buttonMonthQuery" Margin="2,0" Width="30" Content="月" Click="_buttonMonthQuery_Click"/>
+                            <Button Name="_buttonYearQuery" Margin="2,0" Width="30" Content="年" Click="_buttonYearQuery_Click"/>
+                            <Button Name="_buttonAllQuery" Margin="2,0" Width="30" Content="全" Click="_buttonAllQuery_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
+                <!--<GroupBox DockPanel.Dock="Top" Margin="10,30,10,10" Header="合约" Width="220" VerticalAlignment="Top">
+                    <Grid>
+                        <StackPanel x:Name="_spItems" HorizontalAlignment="Center" Orientation="Vertical" Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="2" >
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>-->
+                <TextBlock DockPanel.Dock="Top" Name="_textBlock实时状态" FontSize="12px" Margin="10,0" TextAlignment="Left" Text="" Visibility="Collapsed">正在更新</TextBlock>
+                <ProgressBar DockPanel.Dock="Top"  Name="_progressBar进度" Margin="10,10" Visibility="Collapsed" Height="10" />
+                <ListBox x:Name="_listBox合约" Width="240" Margin="20,20,20,20" SelectionChanged="_listBox合约_SelectionChanged"/>
+
+            </DockPanel>
+            <Grid  Margin="10" DockPanel.Dock="Left" >
+                <Grid x:Name="_loading"  Opacity="0.5" Background="White" Panel.ZIndex="1" Visibility="Hidden"/>
+                <TabControl Name="_tabControl">
+                    <TabItem Name="_tabPage资金状况" Header="资金状况">
+
+                        <DataGrid Name="_dataGrid资金状况"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="上日结存" Binding="{Binding YesterdayBalance, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="客户权益" Binding="{Binding CustomerRights, Mode=OneWay, StringFormat={}{0:n}}"/>
+                                <DataGridTextColumn Header="当日存取合计" Binding="{Binding Remittance, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="质押金" Binding="{Binding MatterDeposit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="当日盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="浮动盈亏" Binding="{Binding FloatingProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="涨幅" Binding="{Binding Increase, Mode=OneWay}" Width="60" />
+                                <DataGridTextColumn Header="保证金占用" Binding="{Binding Margin, Mode=OneWay, StringFormat={}{0:n}}"  />
+                                <DataGridTextColumn Header="持仓比例" Binding="{Binding PositionRatio, Mode=OneWay, StringFormat={}{0:n}}"  />
+                                <DataGridTextColumn Header="当日手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}"  />
+                                <DataGridTextColumn Header="可用资金" Binding="{Binding FreeMargin, Mode=OneWay, StringFormat={}{0:n}}"  />
+                                <DataGridTextColumn Header="当日结存" Binding="{Binding TodayBalance, Mode=OneWay, StringFormat={}{0:n}}"  />
+                                <DataGridTextColumn Header="风险度" Binding="{Binding VentureFactor, Mode=OneWay}" />
+                                <DataGridTextColumn Header="追加保证金" Binding="{Binding AdditionalMargin, Mode=OneWay, StringFormat={}{0:n}}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage出入金明细"   Header="出入金明细">
+                        <DataGrid Name="_dataGrid出入金明细"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="入金" Binding="{Binding Deposit, Mode=OneWay, StringFormat={}{0:N}}" />
+                                <DataGridTextColumn Header="出金" Binding="{Binding WithDrawal, Mode=OneWay, StringFormat={}{0:N}}" />
+                                <DataGridTextColumn Header="方式" Binding="{Binding Type, Mode=OneWay}" />
+                                <DataGridTextColumn Header="摘要" Binding="{Binding Summary, Mode=OneWay}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage成交汇总"  Header="成交汇总">
+                        <DataGrid Name="_dataGrid成交汇总"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买卖" Binding="{Binding BS, Mode=OneWay}" />
+                                <DataGridTextColumn Header="投机套保" Binding="{Binding SH, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交价" Binding="{Binding Price, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="手数" Binding="{Binding Size, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交额" Binding="{Binding Amount, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="开平" Binding="{Binding OC, Mode=OneWay}" />
+                                <DataGridTextColumn Header="手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage持仓汇总"  Header="持仓汇总">
+                        <DataGrid Name="_dataGrid持仓汇总"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="持仓日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买持仓" Binding="{Binding BuySize, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买均价" Binding="{Binding BuyAveragePrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="卖持仓" Binding="{Binding SaleSize, Mode=OneWay}" />
+                                <DataGridTextColumn Header="卖均价" Binding="{Binding SaleAveragePrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="昨结算价" Binding="{Binding YesterdaySettlementPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="今结算价" Binding="{Binding TodaySettlementPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="持仓盈亏" Binding="{Binding Profit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="交易保证金" Binding="{Binding Margin, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="投机套保" Binding="{Binding SH, Mode=OneWay}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem  Name="_tabPage成交明细" Header="成交明细">
+                        <DataGrid Name="_dataGrid成交明细"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="实际成交时间" Binding="{Binding ActualTime, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交序号" Binding="{Binding Ticket, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买卖" Binding="{Binding BS, Mode=OneWay}" />
+                                <DataGridTextColumn Header="投机套保" Binding="{Binding SH, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交价" Binding="{Binding Price, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="手数" Binding="{Binding Size, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交额" Binding="{Binding Amount, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="开平" Binding="{Binding OC, Mode=OneWay}" />
+                                <DataGridTextColumn Header="手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage平仓明细"  Header="平仓明细">
+                        <DataGrid Name="_dataGrid平仓明细"   FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="实际成交日期" Binding="{Binding ActualDate, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交序号" Binding="{Binding TicketForClose, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买卖" Binding="{Binding BS, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交价" Binding="{Binding PriceForClose, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="开仓价" Binding="{Binding PriceForOpen, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="手数" Binding="{Binding Size, Mode=OneWay}" />
+                                <DataGridTextColumn Header="昨结算价" Binding="{Binding YesterdaySettlementPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="原成交序号" Binding="{Binding TicketForOpen, Mode=OneWay}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage持仓明细"    Header="持仓明细">
+                        <DataGrid Name="_dataGrid持仓明细"  ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle}"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="持仓日期" Binding="{Binding DateForPosition, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="成交日期" Binding="{Binding DateForActual, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交序号" Binding="{Binding Ticket, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买持仓" Binding="{Binding BuySize, Mode=OneWay}" />
+                                <DataGridTextColumn Header="买入价" Binding="{Binding BuyPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="卖持仓" Binding="{Binding SaleSize, Mode=OneWay}" />
+                                <DataGridTextColumn Header="卖出价" Binding="{Binding SalePrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="昨结算价" Binding="{Binding YesterdaySettlementPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="今结算价" Binding="{Binding TodaySettlementPrice, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="持仓盈亏" Binding="{Binding Profit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="投机套保" Binding="{Binding SH, Mode=OneWay}" />
+                                <DataGridTextColumn Header="交易编码" Binding="{Binding TradeCode, Mode=OneWay}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Name="_tabPage品种汇总"  Header="品种汇总">
+                        <DataGrid Name="_dataGrid品种汇总"  FontFamily="Consolas">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="品种" Binding="{Binding Commodity, Mode=OneWay}" />
+                                <DataGridTextColumn Header="手数" Binding="{Binding Size, Mode=OneWay}" />
+                                <DataGridTextColumn Header="成交额" Binding="{Binding Amount, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>

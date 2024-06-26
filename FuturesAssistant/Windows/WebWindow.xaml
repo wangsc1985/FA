@@ -1,0 +1,15 @@
+﻿<Window x:Class="FuturesAssistant.Windows.WebWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FuturesAssistant.Windows"
+        mc:Ignorable="d"
+        Title="WebWindow" Height="800" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <WebBrowser Name="_web" Margin="20px 20px 20px 50px"/>
+        <Button Name="_confirm" Content="确定" HorizontalAlignment="Left" Margin="680,745,0,0" Width="100px" VerticalAlignment="Top" Click="_confirm_Click"/>
+        <Button Name="_cancel" Content="取消" HorizontalAlignment="Left" Margin="570,745,0,0" Width="100px" VerticalAlignment="Top" Click="_cancel_Click"/>
+
+    </Grid>
+</Window>

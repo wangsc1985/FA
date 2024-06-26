@@ -1,0 +1,47 @@
+﻿<my:DialogBase xmlns:my="clr-namespace:FuturesAssistant.Windows"
+               x:Class="FuturesAssistant.Windows.AverageParameterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="均线参数" x:Name="_dialog"  Height="190" Width="510"  WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Loaded="Window_Loaded" MouseWheel="_window_MouseWheel">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <GroupBox Width="150" Height="90">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <CheckBox Name="_checkBoxAverage1" Margin="0,0,5,0" VerticalAlignment="Center" Checked="_checkBoxAverage1_Checked" Unchecked="_checkBoxAverage1_Unchecked"/>
+                            <TextBlock Text="均线一" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBlock Name="_labelAverage1Color" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center" MouseLeftButtonDown="_labelAverage1Color_MouseLeftButtonDown" />
+                        </StackPanel>
+                        <TextBox Name="_numericUpDownAverage1" Width="100" Height="20" TextChanged="_numericUpDownAverage1_TextChanged" MouseWheel="_numericUpDownAverage1_MouseWheel"></TextBox>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Width="150" Height="90">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <CheckBox Name="_checkBoxAverage2"  Margin="0,0,5,0" VerticalAlignment="Center" Checked="_checkBoxAverage2_Checked" Unchecked="_checkBoxAverage2_Unchecked" />
+                            <TextBlock Text="均线二" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBlock Name="_labelAverage2Color" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center" MouseLeftButtonDown="_labelAverage2Color_MouseLeftButtonDown"/>
+                        </StackPanel>
+                        <TextBox Name="_numericUpDownAverage2" Width="100" Height="20" TextChanged="_numericUpDownAverage2_TextChanged" MouseWheel="_numericUpDownAverage2_MouseWheel"></TextBox>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Width="150" Height="90">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Margin="20,5,0,0" Orientation="Horizontal" Height="40">
+                            <CheckBox Name="_checkBoxAverage3"  Margin="0,0,5,0" VerticalAlignment="Center" Checked="_checkBoxAverage3_Checked" Unchecked="_checkBoxAverage3_Unchecked"/>
+                            <TextBlock Text="均线三" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBlock Name="_labelAverage3Color" Margin="10,0" Width="30" Height="25" VerticalAlignment="Center"  MouseLeftButtonDown="_labelAverage3Color_MouseLeftButtonDown" />
+                        </StackPanel>
+                        <TextBox Name="_numericUpDownAverage3" Width="100" Height="20" TextChanged="_numericUpDownAverage3_TextChanged" MouseWheel="_numericUpDownAverage3_MouseWheel"></TextBox>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button IsDefault="True" Name="_button确认" Margin="10" Width="100" Content="确认" Click="_button确认_Click"></Button>
+                <Button Name="_button退出" Margin="10" Width="100" Content="退出" Click="_button退出_Click"></Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</my:DialogBase>
