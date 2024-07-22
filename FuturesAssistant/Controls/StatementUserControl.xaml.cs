@@ -191,8 +191,8 @@ namespace FuturesAssistant.Controls
                 throw;
             }
         }
-        private string longStr = "多";
-        private string shortStr = "空";
+        private string longStr = "多单";
+        private string shortStr = "空单";
 
         private string TradeTypeString(Trade trade)
         {
@@ -225,6 +225,7 @@ namespace FuturesAssistant.Controls
             return trade.BS.Trim().Equals("卖") ? longStr : shortStr;
         }
 
+        private List<Trade> tradeList = new List<Trade>();
         private void Query(bool isFromListSelected = false)
         {
             try
@@ -344,7 +345,7 @@ namespace FuturesAssistant.Controls
 
                         tradeDetails = tradeDetails.OrderBy(m => m.ActualTime);
 
-                        var tradeList = new List<Trade>();
+                        tradeList.Clear();
                         foreach (var td in tradeDetails)
                         {
                             var trade = tradeList.FirstOrDefault(m => m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
@@ -423,7 +424,7 @@ namespace FuturesAssistant.Controls
             _buttonWeekQuery.IsEnabled = true;
             _buttonMonthQuery.IsEnabled = true;
             _buttonYearQuery.IsEnabled = true;
-            _buttonAllQuery.IsEnabled = true;
+            _buttonAllQuery.IsEnabled = true; 
         }
 
         private string saveDirPath = System.Windows.Forms.Application.StartupPath + "\\statement";
@@ -432,6 +433,16 @@ namespace FuturesAssistant.Controls
         {
             Thread query = new Thread(() => Query(true));
             query.Start();
+        }
+
+        private void _buttonExport_Click(object sender, RoutedEventArgs e)
+        {
+            var strList =  new List<string>();
+
+            foreach(var td in tradeList)
+            {
+                strList.Add($"{td.Id}:{td.Item}:{td.Date}:{td.OC}:{td.BS}:{td.Price}:{td.Size}:{td.Commission}:{td.ClosedProfit}:{td.SH}");   
+            }
         }
 
 

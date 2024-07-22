@@ -48,7 +48,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Button Grid.Row="0" Name="_exitButton" Style="{StaticResource SmallCloseButtonStyle}" Click="_exitButton_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3" Opacity="0"/>
-            <Image Grid.Row="0" Source="/Resources/login.png"/>
+            <Image Grid.Row="0" Source="/Resources/login.png" />
             <!--<Label x:Name="label" Grid.Row="1" Content="正在加载用户数据......" Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>-->
             <StackPanel x:Name="stackPanel" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="150" Width="{Binding ActualWidth, ElementName=grid}">
                 <GroupBox x:Name="groupBox" Margin="250,0,5,0" Width="264" Height="106">

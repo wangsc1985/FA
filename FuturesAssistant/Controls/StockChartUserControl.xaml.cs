@@ -1052,6 +1052,14 @@ namespace FuturesAssistant.Controls
 
         private void RefreshDayChart()
         {
+            if (_stockChart.Series["Price"].ChartType == SeriesChartType.Line)
+            {
+                seriesPrice.BorderWidth = 2;
+            }
+            else
+            {
+                seriesPrice.BorderWidth = 1;
+            }
             _stockChart.Series["Price"].Points.Clear();
             _stockChart.Series["Volume"].Points.Clear();
             //
@@ -1091,8 +1099,8 @@ namespace FuturesAssistant.Controls
                 }
             }
 
-            // 图表右边距
-            for (int i = 0; i < 10; i++)
+                // 图表右边距
+                for (int i = 0; i < 10; i++)
             {
                 DataPoint dp = new DataPoint();
                 dp.SetValueXY(" ", 0);
@@ -1112,6 +1120,14 @@ namespace FuturesAssistant.Controls
 
         private void RefreshWeekChart()
         {
+            if (_stockChart.Series["Price"].ChartType == SeriesChartType.Line)
+            {
+                seriesPrice.BorderWidth = 2;
+            }
+            else
+            {
+                seriesPrice.BorderWidth = 1;
+            }
             _weekStocks.Clear();
             _stockChart.Series["Price"].Points.Clear();
             _stockChart.Series["Volume"].Points.Clear();
@@ -1254,6 +1270,14 @@ namespace FuturesAssistant.Controls
 
         private void RefreshMonthChart()
         {
+            if (_stockChart.Series["Price"].ChartType == SeriesChartType.Line)
+            {
+                seriesPrice.BorderWidth = 2;
+            }
+            else
+            {
+                seriesPrice.BorderWidth = 1;
+            }
             _monthStocks.Clear();
             _stockChart.Series["Price"].Points.Clear();
             _stockChart.Series["Volume"].Points.Clear();
@@ -1366,6 +1390,14 @@ namespace FuturesAssistant.Controls
 
         private void RefreshYearChart()
         {
+            if (_stockChart.Series["Price"].ChartType == SeriesChartType.Line)
+            {
+                seriesPrice.BorderWidth = 2;
+            }
+            else
+            {
+                seriesPrice.BorderWidth = 1;
+            }
             _yearStocks.Clear();
             _stockChart.Series["Price"].Points.Clear();
             _stockChart.Series["Volume"].Points.Clear();

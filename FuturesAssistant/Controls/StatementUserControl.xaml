@@ -41,9 +41,11 @@
                         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" >结束时间：</TextBlock>
                         <DatePicker Name="_dateTimePicker开始" Margin="0,0,10,0"   Grid.Row="0" Grid.Column="1" />
                         <DatePicker Name="_dateTimePicker结束" Margin="0,0,10,0"   Grid.Row="1" Grid.Column="1" />
-                        <Button Name="_buttonQuery" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
-                          Width="100" Content="查询" Click="_buttonQuery_Click" Height="30">
-                        </Button>
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" >
+                            <Button Name="_buttonQuery"  Width="60" Content="查询" Click="_buttonQuery_Click" Height="30"></Button>
+                            <Button Name="_buttonExport"  Width="60" Content="导出" Margin="5,0" Height="30" Click="_buttonExport_Click"></Button>
+                            
+                        </StackPanel>
                         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="3" Grid.Column="0"  Grid.ColumnSpan="2" >
                             <Button Name="_buttonDayQuery" Margin="2,0" Width="30" Content="今" Click="_buttonDayQuery_Click"/>
                             <Button Name="_buttonWeekQuery" Margin="2,0" Width="30" Content="周" Click="_buttonWeekQuery_Click"/>
