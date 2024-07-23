@@ -105,12 +105,12 @@ namespace FuturesAssistant.Windows
         private void CheckMargin()
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Account), typeof(FundStatus)))
+            using (StatementContext statement = new StatementContext())
             {
-                var accounts = statement.Accounts;
+                var accounts = statement.Account;
                 foreach (var account in accounts)
                 {
-                    var latestFundStatus = statement.FundStatus.OrderBy(fs => fs.Date).LastOrDefault(fs => fs.AccountId == account.Id);
+                    var latestFundStatus = statement.FundStatus.OrderBy(fs => fs.Date).ToList().LastOrDefault(fs => fs.AccountId == account.Id);
 
                     if (latestFundStatus != null && latestFundStatus.AdditionalMargin != 0)
                     {
@@ -237,23 +237,23 @@ namespace FuturesAssistant.Windows
                 var tm = _combox账户列表.SelectedItem as AccountListModel;
 
                 //
-                using (StatementContext statement = new StatementContext(typeof(Account)))
+                using (StatementContext statement = new StatementContext())
                 {
                     // 更新_Session.CurrentAccountId。 
                     //      注“合并账户显示”项的Id为Guid.Empty。
-                    Account acc = statement.Accounts.FirstOrDefault(m => m.Id == tm.Id);
-                    var selectedAccount = statement.Accounts.FirstOrDefault(model => model.Id.Equals(acc.Id));
+                    Account acc = statement.Account.ToList().FirstOrDefault(m => m.Id .Equals( tm.Id));
+                    var selectedAccount = statement.Account.ToList().FirstOrDefault(model => model.Id.Equals(acc.Id));
                     if (selectedAccount != null)
                     {
                         _Session.SelectedAccountId = selectedAccount.Id;
                     }
                     else
                     {
-                        _Session.SelectedAccountId = Guid.Empty;
+                        _Session.SelectedAccountId = Guid.Empty.ToString();
                     }
 
                     //
-                    if (_Session.SelectedAccountId == Guid.Parse(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), _Session.SelectedAccountId.ToString())))
+                    if (_Session.SelectedAccountId.Equals(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), _Session.SelectedAccountId.ToString())))
                     {
                         _button默认账户.Visibility = System.Windows.Visibility.Collapsed;
                     }
@@ -319,11 +319,11 @@ namespace FuturesAssistant.Windows
                 _button更新数据._Refresh();
                 //this.parseWay = StatementParseWay.html;
                 var tm = _combox账户列表.SelectedItem as AccountListModel;
-                using (StatementContext statement = new StatementContext(typeof(Account)))
+                using (StatementContext statement = new StatementContext())
                 {
                     // 更新_Session.CurrentAccountId。 
                     //      注“合并账户显示”项的Id为Guid.Empty。
-                    Account acc = statement.Accounts.FirstOrDefault(m => m.Id == tm.Id);
+                    Account acc = statement.Account.ToList().FirstOrDefault(m => m.Id.Equals(tm.Id));
                     if (acc.Type == 2)
                     {
                         AddCooperateDataDialog acdd = new AddCooperateDataDialog(tm.Id);
@@ -352,15 +352,15 @@ namespace FuturesAssistant.Windows
 
         private void LoadAllStatements()
         {
-            using (StatementContext statement = new StatementContext(typeof(FundStatus), typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
                 bool loaded = false; // 判断是否有账户从监控中心更新了数据
-                var accountList = statement.Accounts.Where(m => m.UserId == _Session.LoginedUserId && (m.Type == 1 || m.Type == 10));
+                var accountList = statement.Account.Where(m => m.UserId == _Session.LoginedUserId && (m.Type == 1 || m.Type == 10));
                 foreach (var account in accountList)
                 {
                     try
                     {
-                        var lastest = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderByDescending(fs => fs.Date).FirstOrDefault();
+                        var lastest = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderByDescending(fs => fs.Date).ToList().FirstOrDefault();
                         if (!account.IsAllowLoad)
                         {
                             //if (lastest != null && (DateTime.Now.Date - lastest.Date.Date).TotalDays <= 60)
@@ -448,14 +448,14 @@ namespace FuturesAssistant.Windows
             }));
         }
 
-        private void LoadStatementFromCFMMC(CookieContainer cookie, Guid accountId)
+        private void LoadStatementFromCFMMC(CookieContainer cookie, string accountId)
         {
             StatementParseWay parseWay = StatementParseWay.excel;
             lock (locker)
             {
                 //
                 StatementContext statement = new StatementContext();
-                Account account = statement.Accounts.FirstOrDefault(model => model.Id == accountId);
+                Account account = statement.Account.ToList().FirstOrDefault(model => model.Id.Equals(accountId));
 
                 //try
                 //{
@@ -476,7 +476,7 @@ namespace FuturesAssistant.Windows
 
 
 
-                lastStock = statement.Stocks.Where(s => s.AccountId == account.Id).OrderByDescending(s => s.Date).FirstOrDefault();
+                lastStock = statement.Stock.Where(s => s.AccountId == account.Id).OrderByDescending(s => s.Date).ToList().FirstOrDefault();
                 if (lastStock == null)
                 {
                     ProgressInfoVisible((endDate - startDate).Days + 1);
@@ -495,7 +495,7 @@ namespace FuturesAssistant.Windows
                         if (yesterdayBalance.HasValue && todayBalance.HasValue && remittance.HasValue && amount.HasValue)
                         {
                             Stock stock = new Stock();
-                            stock.Id = Guid.NewGuid();
+                            stock.Id = Guid.NewGuid().ToString();
                             if (firstLine)
                             {
                                 stock.Date = startDate.Date;
@@ -533,7 +533,7 @@ namespace FuturesAssistant.Windows
                                 stock.Volume = amount.Value;
                                 stock.AccountId = account.Id;
                             }
-                            statement.AddStock(stock);
+                            statement.Stock.Add(stock);
                             dataCount++;
                         }
                         //
@@ -565,7 +565,7 @@ namespace FuturesAssistant.Windows
                         if (yesterdayBalance.HasValue && todayBalance.HasValue && remittance.HasValue && amount.HasValue)
                         {
                             Stock stock = new Stock();
-                            stock.Id = Guid.NewGuid();
+                            stock.Id = Guid.NewGuid().ToString();
                             stock.Date = startDate.Date;
                             stock.Open = close;
                             stock.Close = close += todayBalance.Value - yesterdayBalance.Value - remittance.Value;
@@ -581,7 +581,7 @@ namespace FuturesAssistant.Windows
                             }
                             stock.Volume = amount.Value;
                             stock.AccountId = account.Id;
-                            statement.AddStock(stock);
+                            statement.Stock.Add(stock);
                             dataCount++;
                         }
                         //
@@ -592,9 +592,9 @@ namespace FuturesAssistant.Windows
 
 
                 // 复权处理
-                var stocks = statement.Stocks.Where(s => s.AccountId == account.Id).OrderBy(s => s.Date);
-                lastStock = stocks.LastOrDefault();
-                lastFundStatus = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderBy(fs => fs.Date).LastOrDefault();
+                var stocks = statement.Stock.Where(s => s.AccountId == account.Id).OrderBy(s => s.Date);
+                lastStock = stocks.ToList().LastOrDefault();
+                lastFundStatus = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderBy(fs => fs.Date).ToList().LastOrDefault();
                 if (lastStock != null && lastFundStatus != null)
                 {
                     decimal tmp = lastStock.Close - lastFundStatus.TodayBalance;
@@ -608,13 +608,12 @@ namespace FuturesAssistant.Windows
                             stock.Low -= tmp;
                             stock.Close -= tmp;
                         }
-                        statement.UpdateStocks(stocks);
                     }
                 }
 
                 //
                 SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
-                statement.SaveChanged();
+                statement.SaveChanges();
 
 
                 if (dataCount > 0)
@@ -641,9 +640,9 @@ namespace FuturesAssistant.Windows
 
         private void MailYunBackup(bool isBackground)
         {
-            using (StatementContext statement = new StatementContext(typeof(User)))
+            using (StatementContext statement = new StatementContext())
             {
-                var user = statement.Users.FirstOrDefault(model => model.Id.Equals(_Session.LoginedUserId));
+                var user = statement.User.ToList().FirstOrDefault(model => model.Id.Equals(_Session.LoginedUserId));
                 //
                 //确定smtp服务器地址。实例化一个Smtp客户端
                 SmtpClient client = new SmtpClient("smtp.163.com");

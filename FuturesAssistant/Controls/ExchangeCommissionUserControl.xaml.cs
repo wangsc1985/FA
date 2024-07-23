@@ -695,7 +695,7 @@ namespace FuturesAssistant.Controls
         {
             using (StatementContext statement = new StatementContext())
             {
-                var fs = statement.Stocks.LastOrDefault();
+                var fs = statement.Stock.LastOrDefault();
                 if (fs != null)
                 {
                     DateTime queryDate = fs.Date;

@@ -100,9 +100,9 @@ namespace FuturesAssistant.Windows
                     this._Refresh();
                 }));
                 //
-                using (StatementContext statement = new StatementContext(typeof(User)))
+                using (StatementContext statement = new StatementContext())
                 {
-                    var users = statement.Users;
+                    var users = statement.User;
                     foreach (var user in users)
                     {
                         Dispatcher.Invoke(new FormControlInvoker(() =>
@@ -172,10 +172,10 @@ namespace FuturesAssistant.Windows
                     MessageBox.Show("密码不能为空！");
                     return;
                 }
-                using (StatementContext statement = new StatementContext(typeof(User), typeof(Account)))
+                using (StatementContext statement = new StatementContext())
                 {
                     string userName = _comboBox用户列表.SelectedValue.ToString().Trim();
-                    var users = statement.Users.Where(o => o.UserName.Trim().Equals(userName));
+                    var users = statement.User.Where(o => o.UserName.Trim().Equals(userName));
 
                     if (users.Count() == 0)
                     {
@@ -187,7 +187,7 @@ namespace FuturesAssistant.Windows
                     }
                     else
                     {
-                        var user = users.FirstOrDefault();
+                        var user = users.ToList().FirstOrDefault();
                         var passwordServer = user.UserPassword._RSADecrypt();
                         var passwordClient = _textBoxPassword.Password.Trim();
                         if (!passwordServer.Equals(passwordClient))
@@ -205,7 +205,7 @@ namespace FuturesAssistant.Windows
                             _Session.LoginedUserId = user.Id;
 
                             //
-                            if (statement.Accounts.FirstOrDefault(acc => acc.UserId == user.Id) == null)
+                            if (statement.Account.ToList().FirstOrDefault(acc => acc.UserId .Equals( user.Id)) == null)
                             {
                                 if (MessageBox.Show(this, "当前用户没有资金账户，是否添加一个资金账户？", "", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                                 {
@@ -215,7 +215,7 @@ namespace FuturesAssistant.Windows
                                     //
                                     if (aaf.DialogResult.Value)
                                     {
-                                        _Session.SelectedAccountId = Guid.Parse(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), new StatementContext(typeof(Account)).Accounts.FirstOrDefault().Id.ToString()));
+                                        _Session.SelectedAccountId .Equals(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), new StatementContext().Account.ToList().FirstOrDefault().Id.ToString()));
                                     }
                                     else
                                     {
@@ -232,7 +232,7 @@ namespace FuturesAssistant.Windows
                             else
                             {
                                 _Session.LoginedUserId = user.Id;
-                                _Session.SelectedAccountId = Guid.Parse(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), statement.Accounts.FirstOrDefault().Id.ToString()));
+                                _Session.SelectedAccountId=(_Helper.GetParameter(ParameterName.DefaultAccountId.ToString(), statement.Account.ToList().FirstOrDefault().Id.ToString()));
                             }
 
                             MainWindow mw = new MainWindow(this);
@@ -301,9 +301,9 @@ namespace FuturesAssistant.Windows
         {
             try
             {
-                using (StatementContext statement = new StatementContext(typeof(User)))
+                using (StatementContext statement = new StatementContext())
                 {
-                    var user = statement.Users.FirstOrDefault(model => model.UserName.Equals(_comboBox用户列表.Text.Trim()));
+                    var user = statement.User.ToList().FirstOrDefault(model => model.UserName.Equals(_comboBox用户列表.Text.Trim()));
                     //
                     if (MessageBox.Show(string.Format("是否向用户<{0}>的密保邮箱发送新密码？", user.UserName), "发送新密码确认", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
@@ -346,8 +346,7 @@ namespace FuturesAssistant.Windows
 
                         //
                         user.UserPassword = newPassword._RSAEcrypt();
-                        statement.EditUser(user);
-                        statement.SaveChanged();
+                        statement.SaveChanges();
 
                         //提示发送成功
                         MessageBox.Show("新密码已经发送到您的邮箱中，请及时查收!");
@@ -381,9 +380,9 @@ namespace FuturesAssistant.Windows
                 {
                     try
                     {
-                        using (StatementContext statement = new StatementContext(typeof(User)))
+                        using (StatementContext statement = new StatementContext())
                         {
-                            var user = statement.Users.FirstOrDefault(acc => acc.UserName.Equals(_comboBox用户列表.SelectedValue.ToString().Trim()));
+                            var user = statement.User.ToList().FirstOrDefault(acc => acc.UserName.Equals(_comboBox用户列表.SelectedValue.ToString().Trim()));
                             if (user != null)
                             {
                                 //if (bool.Parse(_Helper.GetParameter(ParameterName.RememberUserPassword.ToString(), false.ToString(), user)))

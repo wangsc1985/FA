@@ -170,7 +170,7 @@ namespace FuturesAssistant.Controls
                     RefreshStatistics();
                 }
                 //this._buttonYearStatistics_Click(null, null);
-                var fds = new StatementContext(typeof(FundStatus)).FundStatus.OrderBy(fs => fs.Date).FirstOrDefault();
+                var fds = new StatementContext().FundStatus.OrderBy(fs => fs.Date).ToList().FirstOrDefault();
                 if (fds != null)
                 {
                     _dateTimePicker开始.DisplayDateStart = _dateTimePicker结束.DisplayDateStart = fds.Date;
@@ -625,9 +625,9 @@ namespace FuturesAssistant.Controls
         {
             using (StatementContext statement = new StatementContext())
             {
-                var accc = statement.Accounts.FirstOrDefault(m => m.Id == _Session.SelectedAccountId);
+                var accc = statement.Account.ToList().FirstOrDefault(m => m.Id == _Session.SelectedAccountId);
 
-                var commodifys = statement.Commoditys;
+                var commodifys = statement.Commodity;
                 DateTime? startDate = null;
                 DateTime? endDate = null;
                 Dispatcher.Invoke(new FormControlInvoker(() =>
@@ -665,21 +665,21 @@ namespace FuturesAssistant.Controls
                         DateTime startDate1 = startDate.Value.Date;
                         DateTime endDate1 = endDate.Value.AddDays(1);
                         //
-                        var closedTradeDetails = statement.ClosedTradeDetails
+                        var closedTradeDetails = statement.ClosedTradeDetail
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDate1 && ctd.ActualDate >= startDate1)
                             .OrderBy(ctd => ctd.ActualDate).ToList();
 
                         foreach (var ct in closedTradeDetails)
                         {
                             // 开平手续费
-                            var tradeDetailForOpen = statement.TradeDetails.FirstOrDefault(td => td.Ticket.Equals(ct.TicketForOpen));
+                            var tradeDetailForOpen = statement.TradeDetail.ToList().FirstOrDefault(td => td.Ticket.Equals(ct.TicketForOpen));
                             if (tradeDetailForOpen == null)
                                 continue;
                             if (tradeDetailForOpen.ActualTime >= new DateTime(endDate1.Year, endDate1.Month, endDate1.Day, 20, 0, 0))
                             {
                                 continue;
                             }
-                            var tradeDetailForClose = statement.TradeDetails.FirstOrDefault(td => td.Ticket.Equals(ct.TicketForClose));
+                            var tradeDetailForClose = statement.TradeDetail.ToList().FirstOrDefault(td => td.Ticket.Equals(ct.TicketForClose));
                             decimal commission1 = tradeDetailForOpen.Commission + tradeDetailForClose.Commission;
 
                             // 平仓盈亏
@@ -726,7 +726,7 @@ namespace FuturesAssistant.Controls
                             tmp.Total = tmp.Profit + tmp.Loss;
 
                             // 如果已存在该合约的盈亏数据
-                            var clost = closedTradeStatistics.FirstOrDefault(ctt => ctt.Item.Equals(tmp.Item));
+                            var clost = closedTradeStatistics.ToList().FirstOrDefault(ctt => ctt.Item.Equals(tmp.Item));
                             if (clost != null)
                             {
                                 clost.Size += tmp.Size;
@@ -739,8 +739,8 @@ namespace FuturesAssistant.Controls
                                 closedTradeStatistics.Add(tmp);
                             }
                         }
-                        var account = statement.Accounts.FirstOrDefault(acc => acc.Id == _Session.SelectedAccountId);
-                        var latestFundStatus = statement.FundStatus.Where(fs => fs.AccountId == _Session.SelectedAccountId).OrderByDescending(fs => fs.Date).FirstOrDefault();
+                        var account = statement.Account.ToList().FirstOrDefault(acc => acc.Id == _Session.SelectedAccountId);
+                        var latestFundStatus = statement.FundStatus.Where(fs => fs.AccountId == _Session.SelectedAccountId).OrderByDescending(fs => fs.Date).ToList().FirstOrDefault();
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {
                             if (latestFundStatus != null)
@@ -834,7 +834,7 @@ namespace FuturesAssistant.Controls
                     //
                     DateTime startDate2 = startDate.Value.Date;
                     DateTime endDate2 = endDate.Value.AddDays(1);
-                    var tradeDetails = statement.TradeDetails.Where(td => td.ActualTime <= endDate2 && td.ActualTime >= startDate2 && td.AccountId == _Session.SelectedAccountId).OrderBy(td => td.ActualTime);
+                    var tradeDetails = statement.TradeDetail.Where(td => td.ActualTime <= endDate2 && td.ActualTime >= startDate2 && td.AccountId == _Session.SelectedAccountId).OrderBy(td => td.ActualTime);
 
                     foreach (var td in tradeDetails)
                     {
@@ -896,7 +896,7 @@ namespace FuturesAssistant.Controls
                     //
                     // 持仓中的盈亏
                     //
-                    var positionDetails = statement.Positions.Where(p => p.Date < endDate2 && p.Date >= startDate2 && p.AccountId == _Session.SelectedAccountId).OrderBy(p => p.Date);
+                    var positionDetails = statement.Position.Where(p => p.Date < endDate2 && p.Date >= startDate2 && p.AccountId == _Session.SelectedAccountId).OrderBy(p => p.Date);
                     foreach (var pds in positionDetails)
                     {
                         if (pds.Profit >= 0)
@@ -933,7 +933,7 @@ namespace FuturesAssistant.Controls
                     //
                     // 持仓偏好
                     //
-                    var positions = statement.Positions.Where(p => p.Date < endDate2 && p.Date >= startDate2 && p.AccountId == _Session.SelectedAccountId).OrderBy(p => p.Date);
+                    var positions = statement.Position.Where(p => p.Date < endDate2 && p.Date >= startDate2 && p.AccountId == _Session.SelectedAccountId).OrderBy(p => p.Date);
                     foreach (var pos in positions)
                     {
                         PositionInterest pi = new PositionInterest();
@@ -958,7 +958,7 @@ namespace FuturesAssistant.Controls
                         dpo.PositionDate = fs.Date;
                         if (fs.Margin > 0)
                         {
-                            var ps = statement.Positions.Where(p => p.Date == fs.Date && p.AccountId == _Session.SelectedAccountId);
+                            var ps = statement.Position.Where(p => p.Date == fs.Date && p.AccountId == _Session.SelectedAccountId);
                             foreach (var pos in ps)
                             {
                                 if (pos.BuySize > 0 && pos.SaleSize > 0)
@@ -1012,10 +1012,10 @@ namespace FuturesAssistant.Controls
                     //
                     // 周收益统计
                     //
-                    var _dayStocks = statement.Stocks.Where(o => o.AccountId == _Session.SelectedAccountId && o.Date >= startDate2 && o.Date < endDate2).OrderBy(o => o.Date);
+                    var _dayStocks = statement.Stock.Where(o => o.AccountId == _Session.SelectedAccountId && o.Date >= startDate2 && o.Date < endDate2).OrderBy(o => o.Date);
                     if (_dayStocks != null && _dayStocks.Count() > 0)
                     {
-                        var firstStock = _dayStocks.OrderBy(m => m.Date).FirstOrDefault();
+                        var firstStock = _dayStocks.OrderBy(m => m.Date).ToList().FirstOrDefault();
                         DateTime date = firstStock.Date.Date;
                         decimal open = firstStock.Open;
                         decimal close = firstStock.Close;
@@ -1180,7 +1180,7 @@ namespace FuturesAssistant.Controls
                         for (int i = 0; i < positionInterests.Count(); i++)
                         {
                             DataPoint dataPoint = new DataPoint(i, positionInterests[i].Night);
-                            var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(positionInterests[i].Commodity.ToLower()));
+                            var comm = statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(positionInterests[i].Commodity.ToLower()));
                             string label = positionInterests[i].Commodity;
                             if (comm != null)
                             {
@@ -1203,7 +1203,7 @@ namespace FuturesAssistant.Controls
                         for (int i = 0; i < tradeInterests.Count(); i++)
                         {
                             DataPoint dataPoint = new DataPoint(i, tradeInterests[i].Amount.ToString("0.00"));
-                            var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(tradeInterests[i].Commodity.ToLower()));
+                            var comm = statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(tradeInterests[i].Commodity.ToLower()));
                             string label = tradeInterests[i].Commodity;
                             if (comm != null)
                             {
@@ -1254,7 +1254,7 @@ namespace FuturesAssistant.Controls
                         for (int i = 0; i < commodityProfits.Count(); i++)
                         {
                             DataPoint dataPoint = new DataPoint(i + 1, commodityProfits[i].Profit.ToString("0.00"));
-                            var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(commodityProfits[i].Commodity.ToLower()));
+                            var comm = statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(commodityProfits[i].Commodity.ToLower()));
                             string label = commodityProfits[i].Commodity.ToLower();
 
                             if (comm != null)
@@ -1476,7 +1476,7 @@ namespace FuturesAssistant.Controls
             _buttonAllStatistics._Refresh();
             //
             //
-            var fds = new StatementContext(typeof(FundStatus)).FundStatus.OrderBy(fs => fs.Date).FirstOrDefault();
+            var fds = new StatementContext().FundStatus.OrderBy(fs => fs.Date).ToList().FirstOrDefault();
             if (fds != null)
                 _dateTimePicker开始.SelectedDate = fds.Date;
             else

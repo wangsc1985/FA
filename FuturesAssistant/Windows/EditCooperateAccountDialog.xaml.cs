@@ -21,13 +21,13 @@ namespace FuturesAssistant.Windows
     public partial class EditCooperateAccountDialog : DialogBase
     {
         private Account account;
-        public EditCooperateAccountDialog(Guid accountId)
+        public EditCooperateAccountDialog(string accountId)
         {
             InitializeComponent();
 
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                account = statement.Accounts.FirstOrDefault(m => m.Id == accountId);
+                account = statement.Account.ToList().FirstOrDefault(m => m.Id == accountId);
                 _textBox客户姓名.Text = account.CustomerName;
                 _textBox配资公司.Text = account.FuturesCompanyName;
                 _textBox配资账号.Text = account.AccountNumber;
@@ -42,14 +42,13 @@ namespace FuturesAssistant.Windows
 
         private void _button确认_Click(object sender, RoutedEventArgs e)
         {
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
                 account.CustomerName = _textBox客户姓名.Text;
                 account.FuturesCompanyName = _textBox配资公司.Text;
                 account.AccountNumber = _textBox配资账号.Text;
                 account.Password = _textBox交易密码.Text.Trim()._RSAEcrypt();
-                statement.EditAccount(account);
-                statement.SaveChanged();
+                statement.SaveChanges();
             }
             Close();
             MessageBox.Show("修改账户成功！");

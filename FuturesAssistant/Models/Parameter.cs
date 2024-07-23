@@ -8,15 +8,16 @@ using System.Text;
 namespace FuturesAssistant.Models
 {
     [Serializable]
+    [Table(name: "Parameter")]
     public class Parameter
     {
         public Parameter()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             Name = Value = "";
         }
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public Guid Id { get; set; }
+        [Key]
+        public string Id { get; set; }
 
         public string Name { get; set; }
 
@@ -25,7 +26,7 @@ namespace FuturesAssistant.Models
         /// 外键
         /// </summary>
         [Required(ErrorMessage = "用户外键不能为空！")]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         /// <summary>
         /// 所属账号
         /// </summary>

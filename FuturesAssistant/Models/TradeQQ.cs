@@ -72,7 +72,7 @@ namespace FuturesAssistant.Models
                 return false;
             if (obj.GetType() != GetType())
                 return false;
-            return Id == ((Trade)obj).Id;
+            return Id.Equals(((Trade)obj).Id);
         }
 
         public override int GetHashCode()

@@ -162,7 +162,6 @@
     <Compile Include="Exception\IllegalCustomerNameException.cs" />
     <Compile Include="Models\PositionQQ.cs" />
     <Compile Include="Models\StatementContext.cs" />
-    <Compile Include="Models\StatementStream.cs" />
     <Compile Include="Models\TradeQQ.cs" />
     <Compile Include="Types\ClosedTradeStatistics.cs" />
     <Compile Include="Controls\MarginUserControl.xaml.cs">

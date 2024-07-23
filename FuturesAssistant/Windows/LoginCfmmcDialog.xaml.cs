@@ -81,14 +81,13 @@ namespace FuturesAssistant.Windows
                 _Helper.LoginWithVerify(Cookie, _textBox资金账号.Text.Trim(), _textBox资金密码.Password.Trim(), _textBox验证码.Text.Trim());
                 if (_textBox资金密码.IsEnabled == true)
                 {
-                    using (StatementContext statement = new StatementContext(typeof(Account)))
+                    using (StatementContext statement = new StatementContext())
                     {
-                        Account account = statement.Accounts.FirstOrDefault(a => a.AccountNumber.Equals(_textBox资金账号.Text.Trim()));
+                        Account account = statement.Account.ToList().FirstOrDefault(a => a.AccountNumber.Equals(_textBox资金账号.Text.Trim()));
                         if (account != null)
                         {
                             account.Password = _textBox资金密码.Password.Trim()._RSAEcrypt();
-                            statement.EditAccount(account);
-                            statement.SaveChanged();
+                            statement.SaveChanges();
                         }
                         else
                         {

@@ -44,9 +44,9 @@ namespace FuturesAssistant.Windows
 
             _gridLoading.Visibility = System.Windows.Visibility.Visible;
             //
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                if (statement.Accounts.Where(a => a.AccountNumber.Equals(_textBox资金账号.Text.Trim())).Count() != 0)
+                if (statement.Account.Where(a => a.AccountNumber.Equals(_textBox资金账号.Text.Trim())).Count() != 0)
                 {
                     _gridLoading.Visibility = System.Windows.Visibility.Hidden;
                     MessageBox.Show("此资金账户已经存在于当前数据库中！");
@@ -95,8 +95,8 @@ namespace FuturesAssistant.Windows
                         account.UserId = _Session.LoginedUserId;
 
                         account.Type = 1;
-                        statement.AddAccount(account);
-                        statement.SaveChanged();
+                        statement.Account.Add(account);
+                        statement.SaveChanges();
 
                         //
                         _gridLoading.Visibility = System.Windows.Visibility.Hidden;

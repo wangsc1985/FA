@@ -32,16 +32,16 @@ namespace FuturesAssistant.Controls
 
         public void InitializeAccountList()
         {
-            using (StatementContext context = new StatementContext(typeof(Stock), typeof(Account), typeof(Commodity), typeof(FundStatus)))
+            using (StatementContext context = new StatementContext())
             {
                 List<AccountListModel> accountListMain = new List<AccountListModel>();
                 List<AccountListModel> accountListSettingJY = new List<AccountListModel>();
                 List<AccountListModel> accountListSettingPZ = new List<AccountListModel>();
                 //context.Accounts;
-                foreach (var acc in context.Accounts.OrderByDescending(m => m.Type))
+                foreach (var acc in context.Account.OrderByDescending(m => m.Type))
                 {
-                    var firstStock = context.Stocks.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().FirstOrDefault();
-                    var lastStock = context.Stocks.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().LastOrDefault();
+                    var firstStock = context.Stock.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().FirstOrDefault();
+                    var lastStock = context.Stock.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().LastOrDefault();
 
                     // 非隐藏账户
                     if (acc.Type % 10 != 0)
@@ -151,7 +151,7 @@ namespace FuturesAssistant.Controls
             //
             if (aaf.DialogResult.Value)
             {
-                using (StatementContext statement = new StatementContext(typeof(Account)))
+                using (StatementContext statement = new StatementContext())
                 {
                     InitializeAccountList();
                 }
@@ -259,15 +259,14 @@ namespace FuturesAssistant.Controls
         {
             if (selectedAccountItem == null)
                 return;
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 if (account == null)
                     throw new ArgumentNullException("要修改的对象不存在！");
 
                 account.Type = account.Type / 10;
-                statement.EditAccount(account);
-                statement.SaveChanged();
+                statement.SaveChanges();
                 InitializeAccountList();
             }
         }
@@ -276,15 +275,14 @@ namespace FuturesAssistant.Controls
         {
             if (selectedAccountItem == null)
                 return;
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 if (account == null)
                     throw new ArgumentNullException("要修改的对象不存在！");
 
                 account.Type = account.Type * 10;
-                statement.EditAccount(account);
-                statement.SaveChanged();
+                statement.SaveChanges();
                 InitializeAccountList();
             }
         }
@@ -314,12 +312,11 @@ namespace FuturesAssistant.Controls
                 return;
             if (selectedAccountItem.Type != 1 && selectedAccountItem.Type != 10)
                 return;
-            using (StatementContext context = new StatementContext(typeof(Account)))
+            using (StatementContext context = new StatementContext())
             {
-                Account acc = context.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+                Account acc = context.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 acc.IsAllowLoad = !acc.IsAllowLoad;
-                context.EditAccount(acc);
-                context.SaveChanged();
+                context.SaveChanges();
                 if (!acc.IsAllowLoad)
                 {
                     MessageBox.Show("此账户将在超过60天未更新时，下载一次。");
@@ -334,12 +331,11 @@ namespace FuturesAssistant.Controls
                 return;
             if (selectedAccountItem.Type != 1 && selectedAccountItem.Type != 10)
                 return;
-            using (StatementContext context = new StatementContext(typeof(Account)))
+            using (StatementContext context = new StatementContext())
             {
-                Account acc = context.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+                Account acc = context.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 acc.IsAllowLoad = !acc.IsAllowLoad;
-                context.EditAccount(acc);
-                context.SaveChanged();
+                context.SaveChanges();
                 if (!acc.IsAllowLoad)
                 {
                     MessageBox.Show("此账户将在超过60天未更新时，下载一次。");

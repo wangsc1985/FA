@@ -32,15 +32,14 @@ namespace FuturesAssistant.Windows
         {
             using (StatementContext statement = new StatementContext())
             {
-                var comm = statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(_tb品种代码.Text.Trim().ToLower()));
+                var comm = statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(_tb品种代码.Text.Trim().ToLower()));
                 if (comm == null)
                 {
                     MessageBox.Show("数据库中不存在此品种");
                     return;
                 }
                 comm.Name = _tb品种名称.Text;
-                statement.EditCommodity(comm);
-                statement.SaveChanged();
+                statement.SaveChanges();
             }
             Close();
         }

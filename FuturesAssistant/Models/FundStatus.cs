@@ -12,14 +12,15 @@ namespace FuturesAssistant.Models
     /// 资金状况类
     /// </summary>
     [Serializable]
+    [Table(name: "FundStatus")]
     public class FundStatus
     {
         public FundStatus()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
         }
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// 日期
         /// </summary>
@@ -122,7 +123,7 @@ namespace FuturesAssistant.Models
         /// 外键
         /// </summary>
         [Required(ErrorMessage = "账户外键不能为空！")]
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
         /// <summary>
         /// 所属账号
         /// </summary>

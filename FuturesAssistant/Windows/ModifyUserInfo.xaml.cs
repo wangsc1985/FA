@@ -21,12 +21,12 @@ namespace FuturesAssistant.Windows
     public partial class ModifyUserInfo : DialogBase
     {
         private User user;
-        public ModifyUserInfo(Guid userId)
+        public ModifyUserInfo(string userId)
         {
             InitializeComponent();
-            using (StatementContext statement = new StatementContext(typeof(User)))
+            using (StatementContext statement = new StatementContext())
             {
-                user = statement.Users.FirstOrDefault(model => model.Id == userId);
+                user = statement.User.ToList().FirstOrDefault(model => model.Id.Equals(userId));
                 _textBox用户名.Text = user.UserName;
                 _textBox用户密码.Password = user.UserPassword._RSADecrypt();
                 _textBox用户密码2.Password = user.UserPassword._RSADecrypt();
@@ -38,7 +38,7 @@ namespace FuturesAssistant.Windows
         private void _button修改_Click(object sender, RoutedEventArgs e)
         {
             bool changed = false;
-            using (StatementContext statement = new StatementContext(typeof(User)))
+            using (StatementContext statement = new StatementContext())
             {
                 //
                 if (string.IsNullOrEmpty(_textBox用户名.Text) || _textBox用户名.Text.Length > 20)
@@ -46,7 +46,7 @@ namespace FuturesAssistant.Windows
                     MessageBox.Show("用户名必须1-20个字符！");
                     return;
                 }
-                if (statement.Users.FirstOrDefault(model => model.Id != user.Id && model.UserName.Equals(_textBox用户名.Text)) != null)
+                if (statement.User.ToList().FirstOrDefault(model => model.Id != user.Id && model.UserName.Equals(_textBox用户名.Text)) != null)
                 {
                     MessageBox.Show("用户名已被占用！");
                     return;
@@ -62,7 +62,7 @@ namespace FuturesAssistant.Windows
                     return;
                 }
 
-                var oldUser = statement.Users.FirstOrDefault(model => model.Id == user.Id);
+                var oldUser = statement.User.ToList().FirstOrDefault(model => model.Id == user.Id);
                 if (!_textBox用户名.Text.Trim().Equals(user.UserName))
                 {
                     changed = true;
@@ -81,8 +81,7 @@ namespace FuturesAssistant.Windows
 
                 if (changed)
                 {
-                    statement.EditUser(oldUser);
-                    statement.SaveChanged();
+                    statement.SaveChanges();
                     MessageBox.Show("信息修改成功！");
                 }
                 Close();

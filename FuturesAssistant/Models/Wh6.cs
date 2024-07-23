@@ -59,7 +59,7 @@ namespace FuturesAssistant.Models
         /// <summary>
         /// 外键
         /// </summary>
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
     }
 
     public class Wh6Remittance
@@ -95,7 +95,7 @@ namespace FuturesAssistant.Models
         /// <summary>
         /// 外键
         /// </summary>
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
     }
 
     public class Wh6FundStatus
@@ -120,7 +120,7 @@ namespace FuturesAssistant.Models
         /// <summary>
         /// 外键
         /// </summary>
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
 
     }
 
@@ -180,7 +180,7 @@ namespace FuturesAssistant.Models
         /// <summary>
         /// 外键
         /// </summary>
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
     }
 
     public class Wh6Info

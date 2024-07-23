@@ -27,7 +27,7 @@ namespace FuturesAssistant.Windows
         public SetDateDialog()
         {
             InitializeComponent();
-            using (StatementContext statement = new StatementContext(typeof(FundStatus)))
+            using (StatementContext statement = new StatementContext())
             {
                 var fss = statement.FundStatus.Where(fs => fs.AccountId == _Session.SelectedAccountId).OrderBy(fs => fs.Date);
                 if (fss != null)

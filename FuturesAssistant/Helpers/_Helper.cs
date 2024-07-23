@@ -17,6 +17,7 @@ using System.Data;
 using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
+using Parameter = FuturesAssistant.Models.Parameter;
 
 namespace FuturesAssistant.Helpers
 {
@@ -185,24 +186,23 @@ namespace FuturesAssistant.Helpers
         public static void SetParameter(string Name, string value)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Models.Parameter)))
+            using (StatementContext statement = new StatementContext())
             {
-                var val = statement.Parameters.FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
+                var val = statement.Parameter.ToList().FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
                 if (val == null)
                 {
-                    FuturesAssistant.Models.Parameter par = new FuturesAssistant.Models.Parameter();
-                    par.Id = Guid.NewGuid();
+                    Parameter par = new Parameter();
+                    par.Id = Guid.NewGuid().ToString();
                     par.Name = Name;
                     par.UserId = _Session.LoginedUserId;
                     par.Value = value;
-                    statement.AddParameter(par);
+                    statement.Parameter.Add(par);
                 }
                 else
                 {
                     val.Value = value;
-                    statement.EditParameter(val);
                 }
-                statement.SaveChanged();
+                statement.SaveChanges();
             }
         }
 
@@ -215,24 +215,23 @@ namespace FuturesAssistant.Helpers
         public static void SetParameter(string Name, string value, User user)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Models.Parameter)))
+            using (StatementContext statement = new StatementContext())
             {
-                var val = statement.Parameters.FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == user.Id);
+                var val = statement.Parameter.ToList().FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == user.Id);
                 if (val == null)
                 {
-                    FuturesAssistant.Models.Parameter par = new FuturesAssistant.Models.Parameter();
-                    par.Id = Guid.NewGuid();
+                    Parameter par = new Parameter();
+                    par.Id = Guid.NewGuid().ToString();
                     par.Name = Name;
                     par.UserId = user.Id;
                     par.Value = value;
-                    statement.AddParameter(par);
+                    statement.Parameter.Add(par);
                 }
                 else
                 {
                     val.Value = value;
-                    statement.EditParameter(val);
                 }
-                statement.SaveChanged();
+                statement.SaveChanges();
             }
         }
 
@@ -244,9 +243,9 @@ namespace FuturesAssistant.Helpers
         public static string GetParameter(string Name)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Models.Parameter)))
+            using (StatementContext statement = new StatementContext())
             {
-                var val = statement.Parameters.FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
+                var val = statement.Parameter.ToList().FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
                 if (val == null)
                 {
                     return null;
@@ -268,18 +267,18 @@ namespace FuturesAssistant.Helpers
         public static string GetParameter(string Name, string defaultValue)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Models.Parameter)))
+            using (StatementContext statement = new StatementContext())
             {
-                var val = statement.Parameters.FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
+                var val = statement.Parameter.ToList().FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == _Session.LoginedUserId);
                 if (val == null)
                 {
-                    FuturesAssistant.Models.Parameter par = new FuturesAssistant.Models.Parameter();
-                    par.Id = Guid.NewGuid();
+                    Parameter par = new Parameter();
+                    par.Id = Guid.NewGuid().ToString();
                     par.Name = Name;
                     par.UserId = _Session.LoginedUserId;
                     par.Value = defaultValue;
-                    statement.AddParameter(par);
-                    statement.SaveChanged();
+                    statement.Parameter.Add(par);
+                    statement.SaveChanges();
                     return defaultValue;
                 }
                 else
@@ -299,18 +298,18 @@ namespace FuturesAssistant.Helpers
         public static string GetParameter(string Name, string defaultValue, User user)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Models.Parameter)))
+            using (StatementContext statement = new StatementContext())
             {
-                var val = statement.Parameters.FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == user.Id);
+                var val = statement.Parameter.ToList().FirstOrDefault(p => p.Name.Equals(Name) && p.UserId == user.Id);
                 if (val == null)
                 {
-                    FuturesAssistant.Models.Parameter par = new FuturesAssistant.Models.Parameter();
-                    par.Id = Guid.NewGuid();
+                    Parameter par = new Parameter();
+                    par.Id = Guid.NewGuid().ToString();
                     par.Name = Name;
                     par.UserId = user.Id;
                     par.Value = defaultValue;
-                    statement.AddParameter(par);
-                    statement.SaveChanged();
+                    statement.Parameter.Add(par);
+                    statement.SaveChanges();
                     return defaultValue;
                 }
                 else
@@ -537,7 +536,7 @@ namespace FuturesAssistant.Helpers
             }
         }
 
-        private static List<PositionDetail> ParseHtmlPositionDetails(DateTime statementDate, string htmlPositionDetails, StatementContext statement, Guid accountId)
+        private static List<PositionDetail> ParseHtmlPositionDetails(DateTime statementDate, string htmlPositionDetails, StatementContext statement, string accountId)
         {
             List<PositionDetail> positionDetails = new List<PositionDetail>();
             try
@@ -558,7 +557,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     PositionDetail positionDetail = new PositionDetail();
-                    positionDetail.Id = Guid.NewGuid();
+                    positionDetail.Id = Guid.NewGuid().ToString();
                     positionDetail.AccountId = accountId;
                     positionDetail.DateForPosition = statementDate;
 
@@ -704,7 +703,7 @@ namespace FuturesAssistant.Helpers
             return positionDetails;
         }
 
-        private static List<ClosedTradeDetail> ParseHtmlClosedTradeDetails(DateTime statementDate, string htmlClosedTradeDetails, StatementContext statement, Guid accountId)
+        private static List<ClosedTradeDetail> ParseHtmlClosedTradeDetails(DateTime statementDate, string htmlClosedTradeDetails, StatementContext statement, string accountId)
         {
             List<ClosedTradeDetail> closedTradeDetails = new List<ClosedTradeDetail>();
             try
@@ -720,7 +719,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     ClosedTradeDetail closedTradeDetail = new ClosedTradeDetail();
-                    closedTradeDetail.Id = Guid.NewGuid();
+                    closedTradeDetail.Id = Guid.NewGuid().ToString();
                     closedTradeDetail.AccountId = accountId;
 
                     //合约
@@ -830,7 +829,7 @@ namespace FuturesAssistant.Helpers
             return closedTradeDetails;
         }
 
-        private static List<TradeDetail> ParseHtmlTradeDetails(DateTime statementDate, string htmlTradeDetails, StatementContext statement, Guid accountId)
+        private static List<TradeDetail> ParseHtmlTradeDetails(DateTime statementDate, string htmlTradeDetails, StatementContext statement, string accountId)
         {
             List<TradeDetail> tradeDetails = new List<TradeDetail>();
             try
@@ -846,7 +845,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     TradeDetail tradeDetail = new TradeDetail();
-                    tradeDetail.Id = Guid.NewGuid();
+                    tradeDetail.Id = Guid.NewGuid().ToString();
                     tradeDetail.AccountId = accountId;
 
                     //合约
@@ -981,7 +980,7 @@ namespace FuturesAssistant.Helpers
             return tradeDetails;
         }
 
-        private static List<CommoditySummarization> ParseHtmlCommoditySummarizations(DateTime statementDate, string htmlCommoditySummarization, StatementContext statement, Guid accountId)
+        private static List<CommoditySummarization> ParseHtmlCommoditySummarizations(DateTime statementDate, string htmlCommoditySummarization, StatementContext statement, string accountId)
         {
             List<CommoditySummarization> commoditySummarizations = new List<CommoditySummarization>();
             try
@@ -997,7 +996,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     CommoditySummarization commoditySummarization = new CommoditySummarization();
-                    commoditySummarization.Id = Guid.NewGuid();
+                    commoditySummarization.Id = Guid.NewGuid().ToString();
                     commoditySummarization.AccountId = accountId;
                     commoditySummarization.Date = statementDate;
 
@@ -1053,13 +1052,13 @@ namespace FuturesAssistant.Helpers
 
                         using (StatementContext context = new StatementContext())
                         {
-                            if (context.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(commoditySummarization.Commodity.ToLower())) == null)
+                            if (context.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(commoditySummarization.Commodity.ToLower())) == null)
                             {
                                 Commodity cd = new Commodity();
                                 cd.Code = commoditySummarization.Commodity;
                                 cd.Name = commoditySummarization.Commodity;
-                                context.AddCommodity(cd);
-                                context.SaveChanged();
+                                context.Commodity.Add(cd);
+                                context.SaveChanges();
                             }
                         }
                     }
@@ -1081,7 +1080,7 @@ namespace FuturesAssistant.Helpers
         }
 
         private static void ParseHtmlStatementHomePage(DateTime statementDate, string htmlStatement, StatementContext statement,
-            out FundStatus fundStatus, out List<Remittance> remittances, out List<Trade> trades, out List<Position> positions, out decimal? amount, Guid accountId)
+            out FundStatus fundStatus, out List<Remittance> remittances, out List<Trade> trades, out List<Position> positions, out decimal? amount, string accountId)
         {
             try
             {
@@ -1097,7 +1096,7 @@ namespace FuturesAssistant.Helpers
                 //资金状况
                 #region
                 fundStatus = new FundStatus();
-                fundStatus.Id = Guid.NewGuid();
+                fundStatus.Id = Guid.NewGuid().ToString();
                 fundStatus.AccountId = accountId;
 
                 //
@@ -1318,7 +1317,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     Remittance remittance = new Remittance();
-                    remittance.Id = Guid.NewGuid();
+                    remittance.Id = Guid.NewGuid().ToString();
                     remittance.AccountId = accountId;
 
                     //发生日期
@@ -1399,7 +1398,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     Trade trade = new Trade();
-                    trade.Id = Guid.NewGuid();
+                    trade.Id = Guid.NewGuid().ToString();
                     trade.AccountId = accountId;
                     trade.Date = statementDate;
 
@@ -1528,7 +1527,7 @@ namespace FuturesAssistant.Helpers
                 {
                     //
                     Position position = new Position();
-                    position.Id = Guid.NewGuid();
+                    position.Id = Guid.NewGuid().ToString();
                     position.AccountId = accountId;
                     position.Date = statementDate;
 
@@ -1662,7 +1661,7 @@ namespace FuturesAssistant.Helpers
 
 
         public static void GetStatementByRequestHtml(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, Guid accountId)
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, string accountId)
         {
 
             amount = null;
@@ -1805,13 +1804,13 @@ namespace FuturesAssistant.Helpers
                     //{                            // 检查当天报表中明细数据是否完整。
                         if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
                         {
-                            statement.AddFundStatus(fundStatus);
-                            statement.AddRemittances(remittances);
-                            statement.AddTrades(trades);
-                            statement.AddPositions(positions);
-                            statement.AddCommoditySummarizations(commoditySummarizations);
-                            statement.AddTradeDetails(tradeDetails);
-                            statement.AddClosedTradeDetails(closedTradeDetails);
+                            statement.FundStatus.Add(fundStatus);
+                            statement.Remittance.AddRange(remittances);
+                            statement.Trade.AddRange(trades);
+                            statement.Position.AddRange(positions);
+                            statement.CommoditySummarization.AddRange(commoditySummarizations);
+                            statement.TradeDetail.AddRange(tradeDetails);
+                            statement.ClosedTradeDetail.AddRange(closedTradeDetails);
                         }
                     //}
                 }
@@ -1849,7 +1848,7 @@ namespace FuturesAssistant.Helpers
                 MessageBox.Show(ex.StackTrace);
             }
         }
-        public static bool IsFinishedStatementData(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement, Guid accountId)
+        public static bool IsFinishedStatementData(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement, string accountId)
         {
             #region 发送请求
             //设置参数
@@ -1941,7 +1940,7 @@ namespace FuturesAssistant.Helpers
                 return false;
             }
         }
-        private static List<PositionDetail> GetPositionDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, Guid accountId)
+        private static List<PositionDetail> GetPositionDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, string accountId)
         {
             //设置参数
             string url = "https://investorservice.cfmmc.com/customer/setupViewPositionDetailAction.do";
@@ -1976,7 +1975,7 @@ namespace FuturesAssistant.Helpers
                 return ParseHtmlPositionDetails(tradeDate, htmlPositionDetails, statement, accountId);
         }
 
-        private static List<ClosedTradeDetail> GetClosedTradeDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, Guid accountId)
+        private static List<ClosedTradeDetail> GetClosedTradeDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, string accountId)
         {
             //设置参数
             string url = "https://investorservice.cfmmc.com/customer/setupViewLiquidDetailAction.do";
@@ -2011,7 +2010,7 @@ namespace FuturesAssistant.Helpers
                 return ParseHtmlClosedTradeDetails(tradeDate, htmlCloseTradeDetails, statement, accountId);
         }
 
-        private static List<TradeDetail> GetTradeDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, Guid accountId)
+        private static List<TradeDetail> GetTradeDetailsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, string accountId)
         {
             //设置参数
             string url = "https://investorservice.cfmmc.com/customer/setupViewTradeDetailAction.do";
@@ -2045,7 +2044,7 @@ namespace FuturesAssistant.Helpers
                 return ParseHtmlTradeDetails(tradeDate, htmlTradeDetails, statement, accountId);
         }
 
-        private static List<CommoditySummarization> GetCommoditySummarizationsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, Guid accountId)
+        private static List<CommoditySummarization> GetCommoditySummarizationsFromHtml(CookieContainer cookie, DateTime tradeDate, StatementContext statement, string accountId)
         {
             //设置参数
             string url = "https://investorservice.cfmmc.com/customer/setupViewTradeCommodityAction.do";
@@ -2086,9 +2085,9 @@ namespace FuturesAssistant.Helpers
         /// <param name="tradeDate"></param>
         /// <param name="settlementType"></param>
         /// <returns></returns>
-        private static string LoadExcelStatement(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, Guid accountId)
+        private static string LoadExcelStatement(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, string accountId)
         {
-            string directoryPath = _Session.DatabaseDirPath + "statement\\" + new StatementContext(typeof(Account)).Accounts.FirstOrDefault(acc => acc.Id == accountId).AccountNumber + "\\" + settlementType.ToString();
+            string directoryPath = _Session.DatabaseDirPath + "statement\\" + new StatementContext().Account.ToList().FirstOrDefault(acc => acc.Id == accountId).AccountNumber + "\\" + settlementType.ToString();
             if (!Directory.Exists(directoryPath))
             {
                 Directory.CreateDirectory(directoryPath);
@@ -2131,7 +2130,7 @@ namespace FuturesAssistant.Helpers
 
 
         private static void ParseExcelStatement(StatementContext statement, string excelFilePath,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittanceTotal, out decimal? amount, Guid accountId)
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittanceTotal, out decimal? amount, string accountId)
         {
             //string tmpFilePath = excelFilePath;
             string tmpFilePath = excelFilePath + ".tmp";
@@ -2247,7 +2246,7 @@ namespace FuturesAssistant.Helpers
 
             #region 资金状况
             FundStatus funStatus = new FundStatus();
-            funStatus.Id = Guid.NewGuid();
+            funStatus.Id = Guid.NewGuid().ToString();
             funStatus.AccountId = accountId;
             funStatus.Date = tradeDate;
             funStatus.SettlementType = settlementType;
@@ -2281,14 +2280,14 @@ namespace FuturesAssistant.Helpers
             funStatus.AdditionalMargin = ToDecimal(statementTable.Rows[funStatusIndex.Value + 9][7].ToString());
 
             //
-            statement.AddFundStatus(funStatus);
+            statement.FundStatus.Add(funStatus);
             #endregion
 
             #region 出入金明细
             while (remittanceIndex.HasValue && !statementTable.Rows[remittanceIndex.Value][0].ToString().Trim().Equals("合计"))
             {
                 Remittance rem = new Remittance();
-                rem.Id = Guid.NewGuid();
+                rem.Id = Guid.NewGuid().ToString();
                 rem.AccountId = accountId;
 
                 //"发生日期"0
@@ -2306,7 +2305,7 @@ namespace FuturesAssistant.Helpers
                 //"摘要" 8
                 rem.Summary = statementTable.Rows[remittanceIndex.Value][8].ToString();
 
-                statement.AddRemittance(rem);
+                statement.Remittance.Add(rem);
                 remittanceIndex++;
             }
             #endregion
@@ -2317,7 +2316,7 @@ namespace FuturesAssistant.Helpers
             while (tradeIndex.HasValue && !statementTable.Rows[tradeIndex.Value][0].ToString().Trim().Equals("合计"))
             {
                 Trade trade = new Trade();
-                trade.Id = Guid.NewGuid();
+                trade.Id = Guid.NewGuid().ToString();
                 trade.Date = tradeDate;
                 trade.AccountId = accountId;
 
@@ -2340,7 +2339,7 @@ namespace FuturesAssistant.Helpers
                 //平仓盈亏9
                 trade.ClosedProfit = ToDecimal(statementTable.Rows[tradeIndex.Value][9].ToString());
 
-                statement.AddTrade(trade);
+                statement.Trade.Add(trade);
                 tradeIndex++;
             }
             #endregion
@@ -2350,7 +2349,7 @@ namespace FuturesAssistant.Helpers
             while (positionIndex.HasValue && !statementTable.Rows[positionIndex.Value][0].ToString().Trim().Equals("合计"))
             {
                 Position position = new Position();
-                position.Id = Guid.NewGuid();
+                position.Id = Guid.NewGuid().ToString();
                 position.Date = tradeDate;
                 position.SettlementType = settlementType;
                 position.AccountId = accountId;
@@ -2385,7 +2384,7 @@ namespace FuturesAssistant.Helpers
                 position.SH = statementTable.Rows[positionIndex.Value][9].ToString();
 
                 //
-                statement.AddPosition(position);
+                statement.Position.Add(position);
                 positionIndex++;
             }
             #endregion
@@ -2412,7 +2411,7 @@ namespace FuturesAssistant.Helpers
             while (!commoditySummarizationsTable.Rows[currentRowIndex][0].ToString().Trim().Equals("合计"))
             {
                 CommoditySummarization commoditySummarization = new CommoditySummarization();
-                commoditySummarization.Id = Guid.NewGuid();
+                commoditySummarization.Id = Guid.NewGuid().ToString();
                 commoditySummarization.Date = tradeDate;
                 commoditySummarization.AccountId = accountId;
 
@@ -2427,7 +2426,7 @@ namespace FuturesAssistant.Helpers
                 //平仓盈亏5
                 commoditySummarization.ClosedProfit = ToDecimal(commoditySummarizationsTable.Rows[currentRowIndex][5].ToString());
 
-                statement.AddCommoditySummarization(commoditySummarization);
+                statement.CommoditySummarization.Add(commoditySummarization);
                 currentRowIndex++;
             }
 
@@ -2448,7 +2447,7 @@ namespace FuturesAssistant.Helpers
             while (!tradeDetailsTable.Rows[currentRowIndex][0].ToString().Trim().Equals("合计"))
             {
                 TradeDetail tradeDetail = new TradeDetail();
-                tradeDetail.Id = Guid.NewGuid();
+                tradeDetail.Id = Guid.NewGuid().ToString();
                 tradeDetail.AccountId = accountId;
 
                 //合约0	
@@ -2476,7 +2475,7 @@ namespace FuturesAssistant.Helpers
                 //实际成交日期11  成交时间2	
                 tradeDetail.ActualTime = Convert.ToDateTime(string.Format("{0} {1}", tradeDetailsTable.Rows[currentRowIndex][11].ToString(), tradeDetailsTable.Rows[currentRowIndex][2].ToString()));
 
-                statement.AddTradeDetail(tradeDetail);
+                statement.TradeDetail.Add(tradeDetail);
                 currentRowIndex++;
             }
 
@@ -2497,7 +2496,7 @@ namespace FuturesAssistant.Helpers
             while (!closedTradesTable.Rows[currentRowIndex][0].ToString().Trim().Equals("合计"))
             {
                 ClosedTradeDetail closedTradeDetail = new ClosedTradeDetail();
-                closedTradeDetail.Id = Guid.NewGuid();
+                closedTradeDetail.Id = Guid.NewGuid().ToString();
                 closedTradeDetail.ActualDate = tradeDate;
                 closedTradeDetail.AccountId = accountId;
 
@@ -2522,7 +2521,7 @@ namespace FuturesAssistant.Helpers
                 //实际成交日期9
                 //closedTradeDetail.ActualDate = Convert.ToDateTime(closedTradesTable.Rows[currentRowIndex][9].ToString());
 
-                statement.AddClosedTradeDetail(closedTradeDetail);
+                statement.ClosedTradeDetail.Add(closedTradeDetail);
                 currentRowIndex++;
             }
 
@@ -2543,7 +2542,7 @@ namespace FuturesAssistant.Helpers
             while (!positionDetailsTable.Rows[currentRowIndex][0].ToString().Trim().Equals("合计"))
             {
                 PositionDetail positionDetail = new PositionDetail();
-                positionDetail.Id = Guid.NewGuid();
+                positionDetail.Id = Guid.NewGuid().ToString();
                 positionDetail.DateForPosition = tradeDate;
                 positionDetail.SettlementType = settlementType;
                 positionDetail.AccountId = accountId;
@@ -2575,7 +2574,7 @@ namespace FuturesAssistant.Helpers
                 //实际成交日期11
                 positionDetail.DateForActual = Convert.ToDateTime(positionDetailsTable.Rows[currentRowIndex][11].ToString());
 
-                statement.AddPositionDetail(positionDetail);
+                statement.PositionDetail.Add(positionDetail);
                 currentRowIndex++;
             }
 
@@ -2621,7 +2620,7 @@ namespace FuturesAssistant.Helpers
 
         private static int tryCount = 0;
         public static void GetStatementByLoadExcel(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, Guid accountId)
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, string accountId)
         {
             try
             {
@@ -2650,7 +2649,7 @@ namespace FuturesAssistant.Helpers
                 response.Close();
                 #endregion
 
-                string directoryPath = _Session.DatabaseDirPath + "statement\\" + new StatementContext(typeof(Account)).Accounts.FirstOrDefault(acc => acc.Id == accountId).AccountNumber + "\\" + settlementType.ToString();
+                string directoryPath = _Session.DatabaseDirPath + "statement\\" + new StatementContext().Account.ToList().FirstOrDefault(acc => acc.Id == accountId).AccountNumber + "\\" + settlementType.ToString();
                 if (!Directory.Exists(directoryPath))
                 {
                     Directory.CreateDirectory(directoryPath);

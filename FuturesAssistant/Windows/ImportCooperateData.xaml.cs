@@ -23,7 +23,7 @@ namespace FuturesAssistant.Windows
     /// </summary>
     public partial class ImportCooperateDataDialog : DialogBase
     {
-        private Guid accountId;
+        private string accountId;
         private DateTime startDate, tradeDate;
         private Account account;
         List<Stock> stocks;
@@ -34,7 +34,7 @@ namespace FuturesAssistant.Windows
         private decimal volume = 0;
         private bool haveNew = false;
 
-        public ImportCooperateDataDialog(Guid accountId, MainWindow handler)
+        public ImportCooperateDataDialog(string accountId, MainWindow handler)
             : this(accountId)
         {
             //InitializeComponent();
@@ -44,7 +44,7 @@ namespace FuturesAssistant.Windows
             ////this._datePicker日期.Text = DateTime.Today.ToShortDateString();
             //Initialize(accountId);
         }
-        public ImportCooperateDataDialog(Guid accountId)
+        public ImportCooperateDataDialog(string accountId)
         {
             InitializeComponent();
             this.accountId = accountId;
@@ -53,13 +53,13 @@ namespace FuturesAssistant.Windows
             Initialize(accountId);
         }
 
-        private void Initialize(Guid accountId)
+        private void Initialize(string accountId)
         {
 
-            using (StatementContext statement = new StatementContext(typeof(Stock), typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                account = statement.Accounts.FirstOrDefault(m => m.Id == accountId);
-                stocks = statement.Stocks.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).ToList();
+                account = statement.Account.ToList().FirstOrDefault(m => m.Id .Equals( accountId));
+                stocks = statement.Stock.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).ToList();
                 var firstStock = stocks.FirstOrDefault();
                 var lastStock = stocks.LastOrDefault();
                 Dispatcher.Invoke(new FormControlInvoker(() =>
@@ -216,7 +216,7 @@ namespace FuturesAssistant.Windows
 
 
                         //mainWindowHandler.SetProgressText(string.Concat("博易数据：", tradeDate.ToString("MM月dd日"), " 蜡烛图表"));
-                        var allStocks = statement.Stocks.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
+                        var allStocks = statement.Stock.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                         var afterStocks = allStocks.Where(m => m.Date > tradeDate);
                         var allFundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                         var afterFundStatus = allFundStatus.Where(m => m.Date > tradeDate);
@@ -243,7 +243,7 @@ namespace FuturesAssistant.Windows
 
 
                         //
-                        statement.AddStock(stock);
+                        statement.Stock.Add(stock);
 
                         //
                         //if (afterStocks.Count() != 0 && stock.Close != stock.Open)
@@ -260,7 +260,7 @@ namespace FuturesAssistant.Windows
 
                         if (fundStatus.Remittance != 0)
                         {
-                            var stocks = statement.Stocks.Where(m => m.AccountId == accountId && m.Date <= tradeDate);
+                            var stocks = statement.Stock.Where(m => m.AccountId == accountId && m.Date <= tradeDate);
                             foreach (var st in stocks)
                             {
                                 st.Open += fundStatus.Remittance;
@@ -268,12 +268,11 @@ namespace FuturesAssistant.Windows
                                 st.High += fundStatus.Remittance;
                                 st.Low += fundStatus.Remittance;
                             }
-                            statement.UpdateStocks(stocks);
                         }
                         mainWindowHandler.AddProgressValue(1);
 
                         //mainWindowHandler.SetProgressText(string.Concat("博易数据：", tradeDate.ToString("MM月dd日"), " 保存数据"));
-                        statement.SaveChanged();
+                        statement.SaveChanges();
                         mainWindowHandler.AddProgressValue(1);
 
                         Initialize(accountId);
@@ -330,7 +329,7 @@ namespace FuturesAssistant.Windows
                     }));
                     return false;
                 }
-                if (stocks.FirstOrDefault(m => m.AccountId == accountId && m.Date.Date == tradeDate.Date) != null)
+                if (stocks.FirstOrDefault(m => m.AccountId .Equals( accountId) && m.Date.Date == tradeDate.Date) != null)
                 {
                     Dispatcher.Invoke(new FormControlInvoker(() =>
                     {
@@ -403,7 +402,7 @@ namespace FuturesAssistant.Windows
                 fundStatus.VentureFactor = Double.Parse(value);
 
 
-                statement.AddFundStatus(fundStatus);
+                statement.FundStatus.Add(fundStatus);
                 this.fundStatus = fundStatus;
             }
             catch (Exception)
@@ -442,7 +441,7 @@ namespace FuturesAssistant.Windows
                             remittance.WithDrawal = money;
                         remittance.Summary = strs[4].Trim();
                         //
-                        statement.AddRemittance(remittance);
+                        statement.Remittance.Add(remittance);
                     }
                     catch (Exception)
                     {
@@ -504,12 +503,12 @@ namespace FuturesAssistant.Windows
                             cs.Date = trade.Date;
                             cs.Size = trade.Size;
                             commSums.Add(cs);
-                            if (statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null)
+                            if (statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null)
                             {
                                 Commodity cd = new Commodity();
                                 cd.Code = cs.Commodity;
                                 cd.Name = cs.Commodity;
-                                statement.AddCommodity(cd);
+                                statement.Commodity.Add(cd);
                             }
                         }
                         else
@@ -519,14 +518,14 @@ namespace FuturesAssistant.Windows
                             cs.Size += trade.Size;
                         }
                         //
-                        statement.AddTrade(trade);
-                        statement.AddTradeDetail(tradeDetail);
+                        statement.Trade.Add(trade);
+                        statement.TradeDetail.Add(tradeDetail);
                     }
                     catch (Exception)
                     {
                     }
                 }
-                statement.AddCommoditySummarizations(commSums);
+                statement.CommoditySummarization.AddRange(commSums);
             }
             catch (Exception)
             {
@@ -566,7 +565,7 @@ namespace FuturesAssistant.Windows
                         closedTradeDetail.ClosedProfit = Decimal.Parse(strs[10].Trim());
                         closedTradeDetail.TicketForClose = strs[11].Trim();
                         //
-                        statement.AddClosedTradeDetail(closedTradeDetail);
+                        statement.ClosedTradeDetail.Add(closedTradeDetail);
                     }
                     catch (Exception)
                     {
@@ -620,7 +619,7 @@ namespace FuturesAssistant.Windows
                         positionDetail.Profit = Decimal.Parse(strs[8].Trim());
                         positionDetail.SH = strs[11].Trim();
                         //
-                        statement.AddPositionDetail(positionDetail);
+                        statement.PositionDetail.Add(positionDetail);
                     }
                     catch (Exception)
                     {
@@ -683,7 +682,7 @@ namespace FuturesAssistant.Windows
 
 
                         //mainWindowHandler.SetProgressText(string.Concat("博易数据：", tradeDate.ToString("MM月dd日"), " 蜡烛图表"));
-                        var allStocks = statement.Stocks.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
+                        var allStocks = statement.Stock.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                         var afterStocks = allStocks.Where(m => m.Date > tradeDate);
                         var allFundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                         var afterFundStatus = allFundStatus.Where(m => m.Date > tradeDate);
@@ -708,12 +707,12 @@ namespace FuturesAssistant.Windows
                         stock.AccountId = accountId;
 
                         //
-                        statement.AddStock(stock);
+                        statement.Stock.Add(stock);
 
 
                         if (fundStatus.Remittance != 0)
                         {
-                            var stocks = statement.Stocks.Where(m => m.AccountId == accountId && m.Date <= tradeDate);
+                            var stocks = statement.Stock.Where(m => m.AccountId == accountId && m.Date <= tradeDate);
                             foreach (var st in stocks)
                             {
                                 st.Open += fundStatus.Remittance;
@@ -721,12 +720,11 @@ namespace FuturesAssistant.Windows
                                 st.High += fundStatus.Remittance;
                                 st.Low += fundStatus.Remittance;
                             }
-                            statement.UpdateStocks(stocks);
                         }
                         mainWindowHandler.AddProgressValue(1);
 
                         //mainWindowHandler.SetProgressText(string.Concat("博易数据：", tradeDate.ToString("MM月dd日"), " 保存数据"));
-                        statement.SaveChanged();
+                        statement.SaveChanges();
                         mainWindowHandler.AddProgressValue(1);
 
                         Initialize(accountId);
@@ -854,7 +852,7 @@ namespace FuturesAssistant.Windows
                 fundStatus.FloatingProfit = Decimal.Parse(value);
 
 
-                statement.AddFundStatus(fundStatus);
+                statement.FundStatus.Add(fundStatus);
                 this.fundStatus = fundStatus;
             }
             catch (Exception)
@@ -888,7 +886,7 @@ namespace FuturesAssistant.Windows
                         position.Margin = Decimal.Parse(strs[9].Trim());
                         position.SH = strs[10].Trim();
                         //
-                        statement.AddPosition(position);
+                        statement.Position.Add(position);
                     }
                     catch (Exception)
                     {
@@ -937,7 +935,7 @@ namespace FuturesAssistant.Windows
                         positionDetail.TodaySettlementPrice = Decimal.Parse(strs[8].Trim());
                         positionDetail.Profit = Decimal.Parse(strs[9].Trim());
                         //
-                        statement.AddPositionDetail(positionDetail);
+                        statement.PositionDetail.Add(positionDetail);
                     }
                     catch (Exception)
                     {
@@ -977,7 +975,7 @@ namespace FuturesAssistant.Windows
                         closedTradeDetail.YesterdaySettlementPrice = Decimal.Parse(strs[9].Trim());
                         closedTradeDetail.ClosedProfit = Decimal.Parse(strs[10].Trim());
                         //
-                        statement.AddClosedTradeDetail(closedTradeDetail);
+                        statement.ClosedTradeDetail.Add(closedTradeDetail);
                     }
                     catch (Exception)
                     {
@@ -1036,12 +1034,12 @@ namespace FuturesAssistant.Windows
                             cs.Date = trade.Date;
                             cs.Size = trade.Size;
                             commSums.Add(cs);
-                            if (statement.Commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null)
+                            if (statement.Commodity.ToList().FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null)
                             {
                                 Commodity cd = new Commodity();
                                 cd.Code = cs.Commodity;
                                 cd.Name = cs.Commodity;
-                                statement.AddCommodity(cd);
+                                statement.Commodity.Add(cd);
                             }
                         }
                         else
@@ -1051,14 +1049,14 @@ namespace FuturesAssistant.Windows
                             cs.Size += trade.Size;
                         }
                         //
-                        statement.AddTrade(trade);
-                        statement.AddTradeDetail(tradeDetail);
+                        statement.Trade.Add(trade);
+                        statement.TradeDetail.Add(tradeDetail);
                     }
                     catch (Exception)
                     {
                     }
                 }
-                statement.AddCommoditySummarizations(commSums);
+                statement.CommoditySummarization.AddRange(commSums);
             }
             catch (Exception)
             {
@@ -1077,8 +1075,8 @@ namespace FuturesAssistant.Windows
             {
                 DateTime date = DateTime.Today;
                 DateTime endate = DateTime.Today;
-                var fundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).FirstOrDefault();
-                var lastFundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).LastOrDefault();
+                var fundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).ToList().FirstOrDefault();
+                var lastFundStatus = statement.FundStatus.Where(m => m.AccountId == accountId).OrderBy(m => m.Date).ToList().LastOrDefault();
                 if (fundStatus != null)
                 {
                     endate = lastFundStatus.Date;
@@ -1103,15 +1101,15 @@ namespace FuturesAssistant.Windows
                     _progress填充进度.Visibility = System.Windows.Visibility.Visible;
                 }
 
-                var stock = statement.Stocks.FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
+                var stock = statement.Stock.ToList().FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
 
                 while (date <= endate)
                 {
-                    if (statement.FundStatus.FirstOrDefault(m => m.Date == date && m.AccountId == accountId) == null
-                        && statement.FundStatus.FirstOrDefault(m => m.Date == date && m.AccountId != accountId) != null)
+                    if (statement.FundStatus.ToList().FirstOrDefault(m => m.Date == date && m.AccountId == accountId) == null
+                        && statement.FundStatus.ToList().FirstOrDefault(m => m.Date == date && m.AccountId != accountId) != null)
                     {
                         FundStatus newFundStatus = new FundStatus();
-                        newFundStatus.Id = Guid.NewGuid();
+                        newFundStatus.Id = Guid.NewGuid().ToString();
                         newFundStatus.AccountId = accountId;
                         newFundStatus.AdditionalMargin = 0;
                         newFundStatus.ClosedProfit = 0;
@@ -1127,19 +1125,19 @@ namespace FuturesAssistant.Windows
                         newFundStatus.TodayBalance = fundStatus.TodayBalance;
                         newFundStatus.VentureFactor = fundStatus.VentureFactor;
                         newFundStatus.YesterdayBalance = fundStatus.TodayBalance;
-                        statement.AddFundStatus(newFundStatus);
+                        statement.FundStatus.Add(newFundStatus);
 
                         Stock newStock = new Stock();
                         newStock.AccountId = accountId;
                         newStock.Date = date;
                         newStock.High = stock.Close;
-                        newStock.Id = Guid.NewGuid();
+                        newStock.Id = Guid.NewGuid().ToString();
                         newStock.Low = stock.Close;
                         newStock.Close = stock.Close;
                         newStock.Low = stock.Close;
                         newStock.Open = stock.Close;
                         newStock.Volume = 0;
-                        statement.AddStock(newStock);
+                        statement.Stock.Add(newStock);
 
 
                         fundStatus = newFundStatus;
@@ -1147,14 +1145,14 @@ namespace FuturesAssistant.Windows
                     }
                     else
                     {
-                        if (statement.FundStatus.FirstOrDefault(m => m.Date == date && m.AccountId != accountId) != null)
+                        if (statement.FundStatus.ToList().FirstOrDefault(m => m.Date == date && m.AccountId != accountId) != null)
                         {
-                            fundStatus = statement.FundStatus.FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
-                            var st = statement.Stocks.FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
+                            fundStatus = statement.FundStatus.ToList().FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
+                            var st = statement.Stock.ToList().FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
 
                             if (fundStatus != null && st != null)
                             {
-                                stock = statement.Stocks.FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
+                                stock = statement.Stock.ToList().FirstOrDefault(m => m.Date == date && m.AccountId == accountId);
                             }
                             else if (fundStatus != null && st == null)
                             {
@@ -1167,7 +1165,7 @@ namespace FuturesAssistant.Windows
                                 sss.Date = date;
                                 sss.Volume = volume;
                                 sss.AccountId = accountId;
-                                statement.AddStock(sss);
+                                statement.Stock.Add(sss);
                                 stock = sss;
                             }
                         }
@@ -1179,7 +1177,7 @@ namespace FuturesAssistant.Windows
                         _progress填充进度._Refresh();
                     }
                 }
-                statement.SaveChanged();
+                statement.SaveChanges();
                 if (isProgress)
                     _progress填充进度.Visibility = System.Windows.Visibility.Hidden;
             }

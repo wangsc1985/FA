@@ -129,7 +129,7 @@ namespace FuturesAssistant.Controls
             _buttonAllQuery.IsEnabled = false;
             _buttonAllQuery._Refresh();
             //
-            var fds = new StatementContext(typeof(FundStatus)).FundStatus.OrderBy(fs => fs.Date).FirstOrDefault();
+            var fds = new StatementContext().FundStatus.OrderBy(fs => fs.Date).ToList().FirstOrDefault();
             if (fds != null)
                 _dateTimePicker开始.SelectedDate = fds.Date;
             else
@@ -178,7 +178,7 @@ namespace FuturesAssistant.Controls
                         //
                         Query();
                     }
-                    var fds = new StatementContext(typeof(FundStatus)).FundStatus.OrderBy(fs => fs.Date).FirstOrDefault();
+                    var fds = new StatementContext().FundStatus.OrderBy(fs => fs.Date).ToList().FirstOrDefault();
                     if (fds != null)
                     {
                         _dateTimePicker开始.DisplayDateStart = _dateTimePicker结束.DisplayDateStart = fds.Date;
@@ -257,11 +257,11 @@ namespace FuturesAssistant.Controls
                             .Where(fs => fs.AccountId == _Session.SelectedAccountId && fs.Date <= endDateNext && fs.Date >= startDate.Value)
                             .OrderBy(fs => fs.Date);
 
-                        var remittances = statement.Remittances
+                        var remittances = statement.Remittance
                             .Where(rt => rt.AccountId == _Session.SelectedAccountId && rt.Date <= endDateNext && rt.Date >= startDate.Value)
                             .OrderBy(rt => rt.Date);
 
-                        var trades = statement.Trades
+                        var trades = statement.Trade
                             .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value)
                             .OrderBy(t => t.Date);
 
@@ -276,22 +276,22 @@ namespace FuturesAssistant.Controls
                                 }
                             }
                         }
-                        var positions = statement.Positions
+                        var positions = statement.Position
                             .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value)
                             .OrderBy(p => p.Date);
 
-                        var commoditys = statement.CommoditySummarizations
+                        var commoditys = statement.CommoditySummarization
                             .Where(c => c.AccountId == _Session.SelectedAccountId && c.Date <= endDateNext && c.Date >= startDate.Value)
                             .OrderBy(c => c.Date);
 
-                        var tradeDetails = statement.TradeDetails
+                        var tradeDetails = statement.TradeDetail
                             .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value)
                             .OrderBy(td => td.ActualTime);
 
-                        var closedTradeDetails = statement.ClosedTradeDetails
+                        var closedTradeDetails = statement.ClosedTradeDetail
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value)
                             .OrderBy(ctd => ctd.ActualDate);
-                        var positionDetails = statement.PositionDetails
+                        var positionDetails = statement.PositionDetail
                             .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value)
                             .OrderBy(pd => pd.DateForPosition);
 
@@ -306,23 +306,23 @@ namespace FuturesAssistant.Controls
                                 var tradeType = ccs[1];
                                 var isLongPosition = tradeType.Equals(longStr);
 
-                                trades = statement.Trades
+                                trades = statement.Trade
                                 .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value && t.Item.Equals(item) &&TradeTypeString(t).Equals(tradeType))
                                 .OrderBy(t => t.Date);
 
-                                tradeDetails = statement.TradeDetails
+                                tradeDetails = statement.TradeDetail
                                 .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value && td.Item.Equals(item) && TradeTypeString(td).Equals(tradeType))
                                 .OrderBy(td => td.ActualTime);
 
-                                closedTradeDetails = statement.ClosedTradeDetails
+                                closedTradeDetails = statement.ClosedTradeDetail
                                 .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value && ctd.Item.Equals(item) && TradeTypeString(ctd).Equals(tradeType))
                                 .OrderBy(ctd => ctd.ActualDate);
 
-                                positions = statement.Positions
+                                positions = statement.Position
                                 .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value && p.Item.Equals(item))
                                 .OrderBy(p => p.Date);
 
-                                positionDetails = statement.PositionDetails
+                                positionDetails = statement.PositionDetail
                                 .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value && pd.Item.Equals(item))
                                 .OrderBy(pd => pd.DateForPosition);
                             }

@@ -26,7 +26,7 @@ using System.Windows.Shapes;
 
 namespace FuturesAssistant.Controls {
     public class AccountListModel {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public int Type { get; set; }
         public string CustomerName { get; set; }
         public string AccountNumber { get; set; }
@@ -73,8 +73,8 @@ namespace FuturesAssistant.Controls {
         private void ImportStocksFromWh6MonthStatement(string wh6MonthStatementsDirPath) {
             try {
                 List<Wh6Trade> wh6Trades = new List<Wh6Trade>();
-                using (StatementContext statement = new StatementContext(typeof(Account), typeof(Stock))) {
-                    var currentAccount = statement.Accounts.FirstOrDefault(model => model.Id == _Session.SelectedAccountId);
+                using (StatementContext statement = new StatementContext()) {
+                    var currentAccount = statement.Account.ToList().FirstOrDefault(model => model.Id == _Session.SelectedAccountId);
                     var files = Directory.GetFileSystemEntries(wh6MonthStatementsDirPath, "*.*.txt");
 
                     //初始化状态
@@ -139,8 +139,8 @@ namespace FuturesAssistant.Controls {
                     //更新状态
                     UpdateStatusAndProgressBar("生成蜡烛图数据", 1);
 
-                    var firstStock = statement.Stocks.Where(model => model.AccountId == currentAccount.Id).OrderBy(model => model.Date).FirstOrDefault();
-                    var firstWh6Trade = wh6Trades.OrderBy(model => model.Date).FirstOrDefault();
+                    var firstStock = statement.Stock.Where(model => model.AccountId == currentAccount.Id).OrderBy(model => model.Date).ToList().FirstOrDefault();
+                    var firstWh6Trade = wh6Trades.OrderBy(model => model.Date).ToList().FirstOrDefault();
                     if (firstStock != null) {
                         if (firstWh6Trade != null) {
                             DateTime firstDate = firstWh6Trade.Date;
@@ -155,7 +155,7 @@ namespace FuturesAssistant.Controls {
                                         volume += wh6Trade.Amount;
                                     }
                                     Stock stock = new Stock();
-                                    stock.Id = Guid.NewGuid();
+                                    stock.Id = Guid.NewGuid().ToString();
                                     stock.Date = lastDate.Date.Date;
                                     stock.Close = open;
                                     stock.Open = stock.Close - profit;
@@ -163,7 +163,7 @@ namespace FuturesAssistant.Controls {
                                     stock.Low = stock.Close < stock.Open ? stock.Close : stock.Open;
                                     stock.AccountId = currentAccount.Id;
                                     stock.Volume = volume;
-                                    statement.AddStock(stock);
+                                    statement.Stock.Add(stock);
                                 }
                                 lastDate = lastDate.AddDays(-1);
                             }
@@ -359,9 +359,9 @@ namespace FuturesAssistant.Controls {
             try {
                 if (_datePicker删除开始时间.SelectedDate.HasValue) {
                     var date = _datePicker删除开始时间.SelectedDate.Value.Date;
-                    StatementContext context = new StatementContext(typeof(Account));
+                    StatementContext context = new StatementContext();
                     if (MessageBox.Show(string.Concat("确认要删除账户【",
-                        context.Accounts.FirstOrDefault(m => m.Id == _Session.SelectedAccountId).AccountNumber,
+                        context.Account.ToList().FirstOrDefault(m => m.Id == _Session.SelectedAccountId).AccountNumber,
                         "】",
                         _datePicker删除开始时间.SelectedDate.Value.Date.ToString("yyyy年MM月dd日"), "以及之后的数据吗？"), "删除数据确认", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
                         DeleteData(date);
@@ -386,11 +386,19 @@ namespace FuturesAssistant.Controls {
                 mainWindow.ProgressInfoVisible(3);
                 using (StatementContext statement = new StatementContext()) {
                     mainWindow.SetProgressText("(1/3)正在删除数据...");
-                    statement.Delete(date, _Session.SelectedAccountId, typeof(ClosedTradeDetail), typeof(CommoditySummarization), typeof(FundStatus), typeof(PositionDetail), typeof(Position), typeof(Remittance), typeof(Stock), typeof(TradeDetail), typeof(Trade));
+                    statement.ClosedTradeDetail.RemoveRange(statement.ClosedTradeDetail.Where(m => m.ActualDate >= date));
+                    statement.CommoditySummarization.RemoveRange(statement.CommoditySummarization.Where(m => m.Date >= date));
+                    statement.FundStatus.RemoveRange(statement.FundStatus.Where(m => m.Date >= date));
+                    statement.PositionDetail.RemoveRange(statement.PositionDetail.Where(m => m.DateForActual >= date));
+                    statement.Position.RemoveRange(statement.Position.Where(m => m.Date >= date));
+                    statement.Remittance.RemoveRange(statement.Remittance.Where(m => m.Date >= date));
+                    statement.Stock.RemoveRange(statement.Stock.Where(m => m.Date >= date));
+                    statement.TradeDetail.RemoveRange(statement.TradeDetail.Where(m => m.ActualTime >= date));
+                    statement.Trade.RemoveRange(statement.Trade.Where(m => m.Date >= date));
                     mainWindow.AddProgressValue(1);
 
                     mainWindow.SetProgressText("(2/3)正在校准权益...");
-                    var stocks = statement.Stocks.Where(m => m.AccountId == _Session.SelectedAccountId).OrderBy(m => m.Date);
+                    var stocks = statement.Stock.Where(m => m.AccountId == _Session.SelectedAccountId).OrderBy(m => m.Date);
                     var fundStatus = statement.FundStatus.Where(m => m.AccountId == _Session.SelectedAccountId).OrderBy(m => m.Date);
                     if (stocks.Count() > 0 && fundStatus.Count() > 0) {
                         var lastStock = stocks.ToList().LastOrDefault();
@@ -404,15 +412,14 @@ namespace FuturesAssistant.Controls {
                                 stc.Close += diff;
                             }
                             mainWindow.AddProgressValue(1);
-                            statement.UpdateStocks(stocks);
                         }
                     }
 
                     mainWindow.SetProgressText("(3/3)正在保存数据...");
-                    statement.SaveChanged();
+                    statement.SaveChanges();
                     mainWindow.AddProgressValue(1);
 
-                    MessageBox.Show(string.Concat("账号【", statement.Accounts.FirstOrDefault(m => m.Id == _Session.SelectedAccountId).AccountNumber, "】 ", date.ToString("yyyy年MM月dd日"), " 以及之后的数据已全部删除。"));
+                    MessageBox.Show(string.Concat("账号【", statement.Account.ToList().FirstOrDefault(m => m.Id == _Session.SelectedAccountId).AccountNumber, "】 ", date.ToString("yyyy年MM月dd日"), " 以及之后的数据已全部删除。"));
                 }
                 mainWindow.InitializeUserControlsThreadStart();
             } catch (Exception ex) {
@@ -586,14 +593,14 @@ namespace FuturesAssistant.Controls {
 
 
         public void InitializeAccountList() {
-            using (StatementContext context = new StatementContext(typeof(Stock), typeof(Account), typeof(Commodity), typeof(FundStatus))) {
+            using (StatementContext context = new StatementContext()) {
                 List<AccountListModel> accountListMain = new List<AccountListModel>();
                 List<AccountListModel> accountListSettingJY = new List<AccountListModel>();
                 List<AccountListModel> accountListSettingPZ = new List<AccountListModel>();
                 //context.Accounts;
-                foreach (var acc in context.Accounts.OrderByDescending(m => m.Type)) {
-                    var firstStock = context.Stocks.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().FirstOrDefault();
-                    var lastStock = context.Stocks.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().LastOrDefault();
+                foreach (var acc in context.Account.OrderByDescending(m => m.Type)) {
+                    var firstStock = context.Stock.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().FirstOrDefault();
+                    var lastStock = context.Stock.Where(m => m.AccountId == acc.Id).OrderBy(m => m.Date).ToList().LastOrDefault();
 
                     // 非隐藏账户
                     if (acc.Type % 10 != 0) {
@@ -664,7 +671,7 @@ namespace FuturesAssistant.Controls {
             aaf.ShowDialog();
             //
             if (aaf.DialogResult.Value) {
-                using (StatementContext statement = new StatementContext(typeof(Account))) {
+                using (StatementContext statement = new StatementContext()) {
                     InitializeAccountList();
                 }
             }
@@ -724,14 +731,13 @@ namespace FuturesAssistant.Controls {
         private void _menuItem列表显示_Click(object sender, RoutedEventArgs e) {
             if (selectedAccountItem == null)
                 return;
-            using (StatementContext statement = new StatementContext(typeof(Account))) {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+            using (StatementContext statement = new StatementContext()) {
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 if (account == null)
                     throw new ArgumentNullException("要修改的对象不存在！");
 
                 account.Type = account.Type / 10;
-                statement.EditAccount(account);
-                statement.SaveChanged();
+                statement.SaveChanges();
                 InitializeAccountList();
             }
         }
@@ -739,14 +745,13 @@ namespace FuturesAssistant.Controls {
         private void _menuItem列表隐藏_Click(object sender, RoutedEventArgs e) {
             if (selectedAccountItem == null)
                 return;
-            using (StatementContext statement = new StatementContext(typeof(Account))) {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+            using (StatementContext statement = new StatementContext()) {
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 if (account == null)
                     throw new ArgumentNullException("要修改的对象不存在！");
 
                 account.Type = account.Type * 10;
-                statement.EditAccount(account);
-                statement.SaveChanged();
+                statement.SaveChanges();
                 InitializeAccountList();
             }
         }
@@ -772,11 +777,10 @@ namespace FuturesAssistant.Controls {
                 return;
             if (selectedAccountItem.Type != 1 && selectedAccountItem.Type != 10)
                 return;
-            using (StatementContext context = new StatementContext(typeof(Account))) {
-                Account acc = context.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+            using (StatementContext context = new StatementContext()) {
+                Account acc = context.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 acc.IsAllowLoad = !acc.IsAllowLoad;
-                context.EditAccount(acc);
-                context.SaveChanged();
+                context.SaveChanges();
                 if (!acc.IsAllowLoad) {
                     MessageBox.Show("此账户将在超过60天未更新时，下载一次。");
                 }
@@ -789,11 +793,10 @@ namespace FuturesAssistant.Controls {
                 return;
             if (selectedAccountItem.Type != 1 && selectedAccountItem.Type != 10)
                 return;
-            using (StatementContext context = new StatementContext(typeof(Account))) {
-                Account acc = context.Accounts.FirstOrDefault(m => m.Id == selectedAccountItem.Id);
+            using (StatementContext context = new StatementContext()) {
+                Account acc = context.Account.ToList().FirstOrDefault(m => m.Id == selectedAccountItem.Id);
                 acc.IsAllowLoad = !acc.IsAllowLoad;
-                context.EditAccount(acc);
-                context.SaveChanged();
+                context.SaveChanges();
                 if (!acc.IsAllowLoad) {
                     MessageBox.Show("此账户将在超过60天未更新时，下载一次。");
                 }
@@ -841,7 +844,7 @@ namespace FuturesAssistant.Controls {
             aaf.ShowDialog();
             //
             if (aaf.DialogResult.Value) {
-                using (StatementContext statement = new StatementContext(typeof(Account))) {
+                using (StatementContext statement = new StatementContext()) {
                     InitializeAccountList();
                 }
             }
@@ -872,7 +875,7 @@ namespace FuturesAssistant.Controls {
             //    statement.SaveChanged();
             //}
         }
-        public void ParseTxtStatement(StatementContext statement, Guid accountId) {
+        public void ParseTxtStatement(StatementContext statement, string accountId) {
             var files = Directory.GetFiles("e:\\80900");
             var settlementType = SettlementType.trade;
 
@@ -942,7 +945,7 @@ namespace FuturesAssistant.Controls {
                 var AdditionalMargin = Regex.Match(content, "(?<=应追加资金 Margin Call：).*").Value.Trim();
 
                 var fundStatus = new FundStatus();
-                fundStatus.Id = Guid.NewGuid();
+                fundStatus.Id = Guid.NewGuid().ToString();
                 fundStatus.AccountId = accountId;
                 fundStatus.SettlementType = settlementType;
 
@@ -990,7 +993,7 @@ namespace FuturesAssistant.Controls {
                             var note = values[5].Trim();
 
                             Remittance rem = new Remittance();
-                            rem.Id = Guid.NewGuid();
+                            rem.Id = Guid.NewGuid().ToString();
                             rem.AccountId = accountId;
 
                             rem.Date = new DateTime(Int32.Parse(date1.Substring(0, 4)), Int32.Parse(date1.Substring(4, 2)), Int32.Parse(date1.Substring(6, 2)));
@@ -1043,7 +1046,7 @@ namespace FuturesAssistant.Controls {
 
 
                             Position pos = new Position();
-                            pos.Id = Guid.NewGuid();
+                            pos.Id = Guid.NewGuid().ToString();
                             pos.Date = date;
                             pos.SettlementType = settlementType;
                             pos.AccountId = accountId;
@@ -1112,7 +1115,7 @@ namespace FuturesAssistant.Controls {
                             * 实际成交时间* 合约* 成交序号* 买卖* 投机套保* 成交价* 手数* 成交额* 开平* 手续费* 平仓盈亏
                             */
                             TradeDetail td = new TradeDetail();
-                            td.Id = Guid.NewGuid();
+                            td.Id = Guid.NewGuid().ToString();
                             td.AccountId = accountId;
 
                             td.ActualTime = new DateTime(Int32.Parse(date1.Substring(0, 4)), Int32.Parse(date1.Substring(4, 2)), Int32.Parse(date1.Substring(6, 2)));
@@ -1142,7 +1145,7 @@ namespace FuturesAssistant.Controls {
                                 aa.Size += td.Size;
                             } else {
                                 Trade trade = new Trade();
-                                trade.Id = Guid.NewGuid();
+                                trade.Id = Guid.NewGuid().ToString();
                                 trade.Date = td.ActualTime;
                                 trade.AccountId = accountId;
 
@@ -1164,7 +1167,7 @@ namespace FuturesAssistant.Controls {
                             */
                             if (!td.OC.Equals("开")) {
                                 ClosedTradeDetail ctd = new ClosedTradeDetail();
-                                ctd.Id = Guid.NewGuid();
+                                ctd.Id = Guid.NewGuid().ToString();
                                 ctd.ActualDate = td.ActualTime;
                                 ctd.AccountId = accountId;
 
@@ -1192,7 +1195,7 @@ namespace FuturesAssistant.Controls {
                                 cc.Size += td.Size;
                             } else {
                                 CommoditySummarization cs = new CommoditySummarization();
-                                cs.Id = Guid.NewGuid();
+                                cs.Id = Guid.NewGuid().ToString();
                                 cs.Date = td.ActualTime;
                                 cs.AccountId = accountId;
 
@@ -1271,7 +1274,7 @@ namespace FuturesAssistant.Controls {
 
 
                             PositionDetail pd = new PositionDetail();
-                            pd.Id = Guid.NewGuid();
+                            pd.Id = Guid.NewGuid().ToString();
                             pd.SettlementType = settlementType;
                             pd.AccountId = accountId;
 
@@ -1294,9 +1297,9 @@ namespace FuturesAssistant.Controls {
                     }
                 }
 
-                var lastStock = statement.Stocks.Where(s => s.AccountId == accountId&&s.Date<date).OrderByDescending(s => s.Date).FirstOrDefault();
+                var lastStock = statement.Stock.Where(s => s.AccountId == accountId&&s.Date<date).OrderByDescending(s => s.Date).ToList().FirstOrDefault();
                 Stock stock = new Stock();
-                stock.Id = Guid.NewGuid();
+                stock.Id = Guid.NewGuid().ToString();
                 stock.Date = date.Date;
                 stock.Open = lastStock.Close;
                 stock.Close = lastStock.Close + (fundStatus.TodayBalance - fundStatus.YesterdayBalance - fundStatus.Remittance);
@@ -1311,17 +1314,17 @@ namespace FuturesAssistant.Controls {
                 stock.Volume = totalAmount;
                 stock.AccountId = accountId;
 
-                statement.AddStock(stock);
-                statement.AddFundStatus(fundStatus);
-                statement.AddTradeDetails(tradeDetails);
-                statement.AddTrades(trades);
-                statement.AddCommoditySummarizations(commoditySummarizations);
-                statement.AddPositions(positions);
-                statement.AddRemittances(remittances);
-                statement.AddPositionDetails(positionDetails);
+                statement.Stock.Add(stock);
+                statement.FundStatus.Add(fundStatus);
+                statement.TradeDetail.AddRange(tradeDetails);
+                statement.Trade.AddRange(trades);
+                statement.CommoditySummarization.AddRange(commoditySummarizations);
+                statement.Position.AddRange(positions);
+                statement.Remittance.AddRange(remittances);
+                statement.PositionDetail.AddRange(positionDetails);
             }
 
-            var stocks = statement.Stocks.Where(s => s.AccountId == accountId && s.Date < date).OrderBy(s => s.Date);
+            var stocks = statement.Stock.Where(s => s.AccountId == accountId && s.Date < date).OrderBy(s => s.Date);
             var diff = stocks.FirstOrDefault().Open - close;
             foreach(var st in stocks) {
                 st.Open -= diff;
@@ -1330,7 +1333,7 @@ namespace FuturesAssistant.Controls {
                 st.Close -= diff;
             }
 
-            statement.SaveChanged();
+            statement.SaveChanges();
 
 
             MessageBox.Show("处理完毕！");

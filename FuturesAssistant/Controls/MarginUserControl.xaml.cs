@@ -33,10 +33,10 @@ namespace FuturesAssistant.Controls
         private void CheckMargin()
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(FundStatus),typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                var latestFundStatus = statement.FundStatus.OrderByDescending(fs => fs.Date).FirstOrDefault(fs => fs.AccountId == _Session.SelectedAccountId);
-                var account = statement.Accounts.FirstOrDefault(acc => acc.Id == _Session.SelectedAccountId);
+                var latestFundStatus = statement.FundStatus.OrderByDescending(fs => fs.Date).ToList().FirstOrDefault(fs => fs.AccountId == _Session.SelectedAccountId);
+                var account = statement.Account.ToList().FirstOrDefault(acc => acc.Id == _Session.SelectedAccountId);
 
                 if (latestFundStatus != null)
                 {

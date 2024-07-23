@@ -9,15 +9,16 @@ namespace FuturesAssistant.Models
 {
     //public class Account : System.Collections.ObjectModel.ObservableCollection<Account>
     [Serializable]
+    [Table(name: "Account")]
     public class Account
     {
         public Account()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             AccountNumber = Password = CustomerName = FuturesCompanyName = "";
         }
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// 账户类型：
         /// 1 - 交易账户
@@ -48,7 +49,7 @@ namespace FuturesAssistant.Models
         public string FuturesCompanyName { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         public User User { get; set; }
 

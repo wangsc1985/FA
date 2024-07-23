@@ -8,15 +8,16 @@ using System.Text;
 namespace FuturesAssistant.Models
 {
     [Serializable]
+    [Table(name: "ClosedTradeDetail")]
     public class ClosedTradeDetail
     {
         public ClosedTradeDetail()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             TicketForClose = TicketForOpen = Item = BS = "";
         }
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// 实际成交日期（实际平仓日期）
         /// </summary>
@@ -61,7 +62,7 @@ namespace FuturesAssistant.Models
         /// 外键
         /// </summary>
         [Required(ErrorMessage = "账户外键不能为空！")]
-        public Guid AccountId { get; set; }
+        public string AccountId { get; set; }
         /// <summary>
         /// 所属账号
         /// </summary>

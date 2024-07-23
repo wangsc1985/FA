@@ -29,7 +29,7 @@ namespace FuturesAssistant.Windows
         {
             try
             {
-                using (StatementContext statement = new StatementContext(typeof(User)))
+                using (StatementContext statement = new StatementContext())
                 {
                     //
                     if (string.IsNullOrEmpty(_textBox用户名.Text) || _textBox用户名.Text.Length > 20)
@@ -37,7 +37,7 @@ namespace FuturesAssistant.Windows
                         MessageBox.Show("用户名必须1-20个字符！");
                         return;
                     }
-                    if (statement.Users.FirstOrDefault(user => user.UserName.Equals(_textBox用户名.Text)) != null)
+                    if (statement.User.ToList().FirstOrDefault(user => user.UserName.Equals(_textBox用户名.Text)) != null)
                     {
                         MessageBox.Show("用户名已被占用！");
                         return;
@@ -54,8 +54,8 @@ namespace FuturesAssistant.Windows
                     }
 
                     //
-                    statement.AddUser(new User { Id = Guid.NewGuid(), UserName = _textBox用户名.Text, UserPassword = _textBox用户密码.Password._RSAEcrypt(), Email = _textBox邮箱.Text });
-                    statement.SaveChanged();
+                    statement.User.Add(new User { Id = Guid.NewGuid().ToString(), UserName = _textBox用户名.Text, UserPassword = _textBox用户密码.Password._RSAEcrypt(), Email = _textBox邮箱.Text });
+                    statement.SaveChanges();
                     DialogResult = true;
                 }
             }

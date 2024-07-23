@@ -19,10 +19,10 @@ namespace FuturesAssistant.Windows
     /// </summary>
     public partial class AddCooperateDataDialog : DialogBase
     {
-        private Guid accountId;
+        private string accountId;
         private DateTime startDate;
 
-        public AddCooperateDataDialog(Guid accountId)
+        public AddCooperateDataDialog(string accountId)
         {
             InitializeComponent();
 
@@ -30,10 +30,10 @@ namespace FuturesAssistant.Windows
             _datePicker日期.SelectedDate = DateTime.Today;
             //this._datePicker日期.Text = DateTime.Today.ToShortDateString();
 
-            using (StatementContext statement = new StatementContext(typeof(Stock), typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == accountId);
-                var stocks = statement.Stocks.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == accountId);
+                var stocks = statement.Stock.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                 var firstStock = stocks.FirstOrDefault();
                 var lastStock = stocks.LastOrDefault();
                 if (lastStock.Date.Date >= DateTime.Today)
@@ -106,20 +106,20 @@ namespace FuturesAssistant.Windows
                 }
             }
 
-            using (StatementContext statement = new StatementContext(typeof(FundStatus), typeof(Account), typeof(Stock)))
+            using (StatementContext statement = new StatementContext())
             {
-                var cooperate = statement.Accounts.FirstOrDefault(m => m.Id == accountId);
+                var cooperate = statement.Account.ToList().FirstOrDefault(m => m.Id == accountId);
                 if (cooperate == null)
                     throw new Exception(string.Concat("不存在ID为：", accountId, "的配资账户！"));
 
-                var sto = statement.Stocks.FirstOrDefault(m => m.AccountId == accountId && m.Date == _datePicker日期.SelectedDate.Value);
+                var sto = statement.Stock.ToList().FirstOrDefault(m => m.AccountId == accountId && m.Date == _datePicker日期.SelectedDate.Value);
                 if (sto != null)
                 {
                     MessageBox.Show(string.Concat("此账户【", _datePicker日期.SelectedDate.Value, "】数据已经存在！"));
                     return;
                 }
 
-                var allStocks = statement.Stocks.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
+                var allStocks = statement.Stock.Where(m => m.AccountId == accountId).OrderBy(m => m.Date);
                 var beforeStocks = allStocks.Where(m => m.Date < _datePicker日期.SelectedDate.Value);
                 var afterStocks = allStocks.Where(m => m.Date > _datePicker日期.SelectedDate.Value);
                 var lastStock = beforeStocks.LastOrDefault();
@@ -141,7 +141,7 @@ namespace FuturesAssistant.Windows
                 stock.AccountId = accountId;
 
                 //
-                statement.AddStock(stock);
+                statement.Stock.Add(stock);
 
                 //
                 if (afterStocks.Count() != 0 && stock.Close != stock.Open)
@@ -153,12 +153,11 @@ namespace FuturesAssistant.Windows
                         st.High += stock.Close - stock.Open;
                         st.Low += stock.Close - stock.Open;
                     }
-                    statement.UpdateStocks(afterStocks);
                 }
 
                 if (remittance != 0)
                 {
-                    var stocks = statement.Stocks.Where(m => m.AccountId == accountId);
+                    var stocks = statement.Stock.Where(m => m.AccountId == accountId);
                     foreach (var st in stocks)
                     {
                         st.Open += remittance;
@@ -166,9 +165,8 @@ namespace FuturesAssistant.Windows
                         st.High += remittance;
                         st.Low += remittance;
                     }
-                    statement.UpdateStocks(stocks);
                 }
-                statement.SaveChanged();
+                statement.SaveChanges();
             }
             DialogResult = true;
             MessageBox.Show("添加成功！");
@@ -282,10 +280,10 @@ namespace FuturesAssistant.Windows
 
         private void _datePicker日期_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            using (StatementContext statement = new StatementContext(typeof(Stock), typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                var account = statement.Accounts.FirstOrDefault(m => m.Id == accountId);
-                var stock = statement.Stocks.FirstOrDefault(m => m.AccountId == accountId && m.Date == _datePicker日期.SelectedDate.Value);
+                var account = statement.Account.ToList().FirstOrDefault(m => m.Id == accountId);
+                var stock = statement.Stock.ToList().FirstOrDefault(m => m.AccountId == accountId && m.Date == _datePicker日期.SelectedDate.Value);
                 if (stock != null)
                 {
                     _button确认.Content = "替换";

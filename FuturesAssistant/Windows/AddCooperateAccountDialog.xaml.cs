@@ -24,18 +24,18 @@ namespace FuturesAssistant.Windows
         {
             InitializeComponent();
 
-            using (StatementContext statement = new StatementContext(typeof(User)))
+            using (StatementContext statement = new StatementContext())
             {
-                _textBox客户姓名.Text = statement.Users.FirstOrDefault(m => m.Id == _Session.LoginedUserId).UserName;
+                _textBox客户姓名.Text = statement.User.ToList().FirstOrDefault(m => m.Id == _Session.LoginedUserId).UserName;
             }
         }
 
         private void _button确认_Click(object sender, RoutedEventArgs e)
         {
             //
-            using (StatementContext statement = new StatementContext(typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
-                if (statement.Accounts.Where(a => a.AccountNumber.Equals(_textBox配资账号.Text.Trim()) && a.FuturesCompanyName.Equals(_textBox配资公司.Text.Trim())).Count() != 0)
+                if (statement.Account.Where(a => a.AccountNumber.Equals(_textBox配资账号.Text.Trim()) && a.FuturesCompanyName.Equals(_textBox配资公司.Text.Trim())).Count() != 0)
                 {
                     MessageBox.Show("此配资账户已经存在于当前数据库中！");
                     Close();
@@ -47,15 +47,15 @@ namespace FuturesAssistant.Windows
                         Account account = new Account();
 
                         //
-                        account.Id = Guid.NewGuid();
+                        account.Id = Guid.NewGuid().ToString();
                         account.Type = 2;
                         account.FuturesCompanyName = _textBox配资公司.Text.Trim();
                         account.AccountNumber = _textBox配资账号.Text.Trim();
                         account.CustomerName = _textBox客户姓名.Text.Trim();
                         account.Password = _textBox交易密码.Text.Trim()._RSAEcrypt(); ;
                         account.UserId = _Session.LoginedUserId;
-                        statement.AddAccount(account);
-                        statement.SaveChanged();
+                        statement.Account.Add(account);
+                        statement.SaveChanges();
 
                         //
                         DialogResult = true;

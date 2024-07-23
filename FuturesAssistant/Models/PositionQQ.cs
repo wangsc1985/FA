@@ -81,7 +81,7 @@ namespace FuturesAssistant.Models
                 return false;
             if (obj.GetType() != GetType())
                 return false;
-            return Id == ((Position)obj).Id;
+            return Id.Equals(((Position)obj).Id);
         }
 
         public override int GetHashCode()

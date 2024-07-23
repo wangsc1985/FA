@@ -106,12 +106,12 @@ namespace FuturesAssistant.Helpers
         /// <summary>
         /// 当前会话中正在处理的Account的Id，如果在账户列表选择的是“合并账户”选项，值为Guid.Empty
         /// </summary>
-        public static Guid SelectedAccountId { get; set; }
+        public static string SelectedAccountId { get; set; }
 
         /// <summary>
         /// 当前会话中的User
         /// </summary>
-        public static Guid LoginedUserId { get; set; }
+        public static string LoginedUserId { get; set; }
 
         /// <summary>
         /// 当前会话中用户的所有Account信息
@@ -125,9 +125,9 @@ namespace FuturesAssistant.Helpers
         {
             get
             {
-                using (StatementContext statement = new StatementContext(typeof(FundStatus)))
+                using (StatementContext statement = new StatementContext())
                 {
-                    var fun = statement.FundStatus.Where(m => m.AccountId == _Session.SelectedAccountId).OrderBy(m => m.Date).LastOrDefault();
+                    var fun = statement.FundStatus.Where(m => m.AccountId == _Session.SelectedAccountId).OrderBy(m => m.Date).ToList().LastOrDefault();
                     if (fun != null)
                     {
                         return fun.Date;

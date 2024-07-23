@@ -8,15 +8,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FuturesAssistant.Models
 {
     [Serializable]
+    [Table(name: "User")]
     public class User
     {
         public User()
         {
-            Id = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
             UserName = Email = UserPassword = "";
         }
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
 
         [Required]
         [MinLength(1,ErrorMessage="用户名至少1个字符！")]

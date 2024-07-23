@@ -814,17 +814,17 @@ namespace FuturesAssistant.Controls
 
         public void RefreshChart()
         {
-            using (StatementContext statement = new StatementContext(typeof(Stock), typeof(Account)))
+            using (StatementContext statement = new StatementContext())
             {
                 if (_ToolStripMenuItem账户合并显示.Checked)
                 {
                     _stocks = new List<Stock>();
                     IDictionary<DateTime, SmallStock> profits = new Dictionary<DateTime, SmallStock>();
                     decimal money = 0m;
-                    var accountList = statement.Accounts.Where(m => m.UserId == _Session.LoginedUserId);
+                    var accountList = statement.Account.Where(m => m.UserId == _Session.LoginedUserId);
                     foreach (var account in accountList)
                     {
-                        var stocks = statement.Stocks.Where(model => model.AccountId == account.Id).OrderByDescending(model => model.Date);
+                        var stocks = statement.Stock.Where(model => model.AccountId == account.Id).OrderByDescending(model => model.Date);
 
                         // 取得当前账户余额
                         var lastStock = stocks.FirstOrDefault();
@@ -877,7 +877,7 @@ namespace FuturesAssistant.Controls
                 }
                 else
                 {
-                    _stocks = statement.Stocks.Where(o => o.AccountId == _Session.SelectedAccountId).OrderByDescending(o => o.Date).ToList();
+                    _stocks = statement.Stock.Where(o => o.AccountId == _Session.SelectedAccountId).OrderByDescending(o => o.Date).ToList();
                 }
 
                 //this._currentCycleStocks = this._stocks;
@@ -1924,9 +1924,9 @@ namespace FuturesAssistant.Controls
         {
             try
             {
-                using (StatementContext statement = new StatementContext(typeof(Account)))
+                using (StatementContext statement = new StatementContext())
                 {
-                    var acc = statement.Accounts.FirstOrDefault(a => a.Id == _Session.SelectedAccountId);
+                    var acc = statement.Account.ToList().FirstOrDefault(a => a.Id == _Session.SelectedAccountId);
                     if (acc == null)
                     {
                         System.Windows.MessageBox.Show(string.Format("无法保存图片，系统中不存在ID<{0}>为资金账户，数据库有错误，请联系管理员！", _Session.SelectedAccountId));
