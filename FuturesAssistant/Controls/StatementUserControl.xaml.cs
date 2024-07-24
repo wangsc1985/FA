@@ -270,9 +270,9 @@ namespace FuturesAssistant.Controls
                         {
                             foreach (var td in trades)
                             {
-                                if (codeList.FirstOrDefault(a => a.Equals($"{td.Item}\t{TradeTypeString(td)}\t{ToCommodityName(td)}  ")) == null)
+                                if (codeList.FirstOrDefault(a => a.Equals($"{td.Item}\t{TradeTypeString(td)}\t{ToCommodityName(td)}")) == null)
                                 {
-                                    codeList.Add($"{td.Item} {TradeTypeString(td)}");
+                                    codeList.Add($"{td.Item}\t{TradeTypeString(td)}\t{ToCommodityName(td)}");
                                 }
                             }
                         }
@@ -301,7 +301,7 @@ namespace FuturesAssistant.Controls
                             if (_listBox合约.SelectedItems.Count == 1)
                             {
                                 var cc = _listBox合约.SelectedItem.ToString();
-                                var ccs = cc.Split(' ');
+                                var ccs = cc.Split('\t');
                                 var item = ccs[0];
                                 var tradeType = ccs[1];
                                 var isLongPosition = tradeType.Equals(longStr);
