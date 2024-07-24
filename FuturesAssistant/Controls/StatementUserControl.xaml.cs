@@ -414,10 +414,10 @@ namespace FuturesAssistant.Controls
         private string ToCommodityName(Trade trade)
         {
             var code =  trade.Item.Replace("0", "").Replace("1", "").Replace("2", "").Replace("3", "").Replace("4", "")
-                .Replace("5", "").Replace("6", "").Replace("7", "").Replace("8", "").Replace("8", "").ToLower();
+                .Replace("5", "").Replace("6", "").Replace("7", "").Replace("8", "").Replace("9", "").ToLower();
             using(var context = new StatementContext())
             {
-                var comm = context.Commodity.FirstOrDefault(com => com.Code.ToLower().Equals(code));
+                var comm = context.Commodity.FirstOrDefault(com => com.Code.ToLower().Equals(code.ToLower()));
                 if (comm != null)
                 {
                     return comm.Name;
