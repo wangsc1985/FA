@@ -35,8 +35,8 @@ namespace FuturesAssistant.Windows
                 int count = 0;
                 foreach (var cs in css)
                 {
-                    if (commoditys.FirstOrDefault(m => m.Code.Equals(cs.Commodity)) == null
-                        && commodityList.FirstOrDefault(m => m.Code.Equals(cs.Commodity)) == null)
+                    if (commoditys.FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null
+                        && commodityList.FirstOrDefault(m => m.Code.ToLower().Equals(cs.Commodity.ToLower())) == null)
                     {
                         Commodity cd = new Commodity();
                         cd.Code = cs.Commodity;
@@ -67,6 +67,23 @@ namespace FuturesAssistant.Windows
                 mc.ShowDialog();
                 _listBox品种列表.ItemsSource = null;
                 _listBox品种列表.ItemsSource = new StatementContext().Commodity.ToList();
+            }
+        }
+
+        private void _btn删除品种_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (_listBox品种列表.SelectedItem == null)
+            {
+                MessageBox.Show("请先选择需要删除的品种。");
+            }
+            using (StatementContext context = new StatementContext())
+            {
+                Commodity comm = _listBox品种列表.SelectedItem as Commodity;
+                context.Commodity.Remove(context.Commodity.FirstOrDefault(com=>com.Name.Equals(comm.Name)));
+                context.SaveChanges();
+                _listBox品种列表.ItemsSource = null;
+                _listBox品种列表.ItemsSource = context.Commodity.ToList();
             }
         }
     }

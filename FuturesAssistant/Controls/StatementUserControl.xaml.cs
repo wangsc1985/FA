@@ -255,22 +255,22 @@ namespace FuturesAssistant.Controls
                         DateTime endDateNext = endDate.Value.Date.AddDays(1);
                         var fundStatus = statement.FundStatus
                             .Where(fs => fs.AccountId == _Session.SelectedAccountId && fs.Date <= endDateNext && fs.Date >= startDate.Value)
-                            .OrderBy(fs => fs.Date);
+                            .OrderBy(fs => fs.Date).ToList();
 
                         var remittances = statement.Remittance
                             .Where(rt => rt.AccountId == _Session.SelectedAccountId && rt.Date <= endDateNext && rt.Date >= startDate.Value)
-                            .OrderBy(rt => rt.Date);
+                            .OrderBy(rt => rt.Date).ToList();
 
                         var trades = statement.Trade
                             .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value)
-                            .OrderBy(t => t.Date);
+                            .OrderBy(t => t.Date).ToList();
 
                         var codeList = new List<string>();
                         if (!isFromListSelected)
                         {
                             foreach (var td in trades)
                             {
-                                if (codeList.FirstOrDefault(a => a.Equals($"{td.Item} {TradeTypeString(td)}")) == null)
+                                if (codeList.FirstOrDefault(a => a.Equals($"{td.Item}\t{TradeTypeString(td)}\t{ToCommodityName(td)}  ")) == null)
                                 {
                                     codeList.Add($"{td.Item} {TradeTypeString(td)}");
                                 }
@@ -278,22 +278,22 @@ namespace FuturesAssistant.Controls
                         }
                         var positions = statement.Position
                             .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value)
-                            .OrderBy(p => p.Date);
+                            .OrderBy(p => p.Date).ToList();
 
                         var commoditys = statement.CommoditySummarization
                             .Where(c => c.AccountId == _Session.SelectedAccountId && c.Date <= endDateNext && c.Date >= startDate.Value)
-                            .OrderBy(c => c.Date);
+                            .OrderBy(c => c.Date).ToList();
 
                         var tradeDetails = statement.TradeDetail
                             .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value)
-                            .OrderBy(td => td.ActualTime);
+                            .OrderBy(td => td.ActualTime).ToList();
 
                         var closedTradeDetails = statement.ClosedTradeDetail
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value)
-                            .OrderBy(ctd => ctd.ActualDate);
+                            .OrderBy(ctd => ctd.ActualDate).ToList();
                         var positionDetails = statement.PositionDetail
                             .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value)
-                            .OrderBy(pd => pd.DateForPosition);
+                            .OrderBy(pd => pd.DateForPosition).ToList();
 
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {
@@ -306,25 +306,25 @@ namespace FuturesAssistant.Controls
                                 var tradeType = ccs[1];
                                 var isLongPosition = tradeType.Equals(longStr);
 
-                                trades = statement.Trade
+                                trades = statement.Trade.ToList()
                                 .Where(t => t.AccountId == _Session.SelectedAccountId && t.Date <= endDate.Value && t.Date >= startDate.Value && t.Item.Equals(item) &&TradeTypeString(t).Equals(tradeType))
-                                .OrderBy(t => t.Date);
+                                .OrderBy(t => t.Date).ToList();
 
-                                tradeDetails = statement.TradeDetail
+                                tradeDetails = statement.TradeDetail.ToList()
                                 .Where(td => td.AccountId == _Session.SelectedAccountId && td.ActualTime <= endDateNext && td.ActualTime >= startDate.Value && td.Item.Equals(item) && TradeTypeString(td).Equals(tradeType))
-                                .OrderBy(td => td.ActualTime);
+                                .OrderBy(td => td.ActualTime).ToList();
 
-                                closedTradeDetails = statement.ClosedTradeDetail
+                                closedTradeDetails = statement.ClosedTradeDetail.ToList()
                                 .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDateNext && ctd.ActualDate >= startDate.Value && ctd.Item.Equals(item) && TradeTypeString(ctd).Equals(tradeType))
-                                .OrderBy(ctd => ctd.ActualDate);
+                                .OrderBy(ctd => ctd.ActualDate).ToList();
 
-                                positions = statement.Position
+                                positions = statement.Position.ToList()
                                 .Where(p => p.AccountId == _Session.SelectedAccountId && p.Date <= endDateNext && p.Date >= startDate.Value && p.Item.Equals(item))
-                                .OrderBy(p => p.Date);
+                                .OrderBy(p => p.Date).ToList();
 
-                                positionDetails = statement.PositionDetail
+                                positionDetails = statement.PositionDetail.ToList()
                                 .Where(pd => pd.AccountId == _Session.SelectedAccountId && pd.DateForPosition <= endDateNext && pd.DateForPosition >= startDate.Value && pd.Item.Equals(item))
-                                .OrderBy(pd => pd.DateForPosition);
+                                .OrderBy(pd => pd.DateForPosition).ToList();
                             }
                         }));
 
@@ -343,9 +343,9 @@ namespace FuturesAssistant.Controls
                             }
                         }
 
-                        tradeDetails = tradeDetails.OrderBy(m => m.ActualTime);
+                        tradeDetails = tradeDetails.OrderBy(m => m.ActualTime).ToList();
 
-                        tradeList.Clear();
+                        tradeList = new List<Trade>();
                         foreach (var td in tradeDetails)
                         {
                             var trade = tradeList.FirstOrDefault(m => m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
@@ -384,15 +384,15 @@ namespace FuturesAssistant.Controls
                                     _listBox合约.Items.Add(code);
                                 }
                             }
-                            _loading.Visibility = System.Windows.Visibility.Hidden;
-                            _dataGrid资金状况.ItemsSource = fundStatus.ToList();
-                            _dataGrid出入金明细.ItemsSource = remittances.ToList();
+                            _loading.Visibility = Visibility.Hidden;
+                            _dataGrid资金状况.ItemsSource = fundStatus;
+                            _dataGrid出入金明细.ItemsSource = remittances;
                             _dataGrid成交汇总.ItemsSource = tradeList;
-                            _dataGrid持仓汇总.ItemsSource = positions.ToList();
-                            _dataGrid品种汇总.ItemsSource = commoditys.ToList();
-                            _dataGrid成交明细.ItemsSource = tradeDetails.ToList();
-                            _dataGrid平仓明细.ItemsSource = closedTradeDetails.ToList();
-                            _dataGrid持仓明细.ItemsSource = positionDetails.ToList();
+                            _dataGrid持仓汇总.ItemsSource = positions;
+                            _dataGrid品种汇总.ItemsSource = commoditys;
+                            _dataGrid成交明细.ItemsSource = tradeDetails;
+                            _dataGrid平仓明细.ItemsSource = closedTradeDetails;
+                            _dataGrid持仓明细.ItemsSource = positionDetails;
 
 
                         }));
@@ -409,6 +409,21 @@ namespace FuturesAssistant.Controls
         private void HideStatus()
         {
             _textBlock实时状态.Visibility = System.Windows.Visibility.Collapsed;
+        }
+
+        private string ToCommodityName(Trade trade)
+        {
+            var code =  trade.Item.Replace("0", "").Replace("1", "").Replace("2", "").Replace("3", "").Replace("4", "")
+                .Replace("5", "").Replace("6", "").Replace("7", "").Replace("8", "").Replace("8", "").ToLower();
+            using(var context = new StatementContext())
+            {
+                var comm = context.Commodity.FirstOrDefault(com => com.Code.ToLower().Equals(code));
+                if (comm != null)
+                {
+                    return comm.Name;
+                }
+                return "";
+            }
         }
 
         private void SetStatus(string text)

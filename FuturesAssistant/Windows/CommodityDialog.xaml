@@ -7,8 +7,9 @@
         <GroupBox Header="品种列表" Margin="3" >
             <DockPanel>
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <!--<Button Margin="5" x:Name="_btn扫描品种" Width="60"  Content="扫描" Click="_btn扫描品种_Click"></Button>-->
+                    <Button Margin="5" x:Name="_btn扫描品种" Width="60"  Content="扫描" Click="_btn扫描品种_Click"></Button>
                     <Button Margin="5" x:Name="_btn品种更名"  Width="60" Content="修改" Click="_btn品种更名_Click" HorizontalAlignment="Right"/>
+                    <Button Margin="5" x:Name="_btn删除品种" Width="60"  Content="删除" Click="_btn删除品种_Click"></Button>
                 </StackPanel>
                 <StackPanel x:Name="stackPanel" Margin="5,5,5,0" DockPanel.Dock="Top" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                     <ListBox x:Name="_listBox品种列表" Style="{DynamicResource ListBoxStyle}" VerticalAlignment="Center" Padding="5,0,5,5" MaxHeight="{Binding ActualHeight, ElementName=stackPanel}" >
