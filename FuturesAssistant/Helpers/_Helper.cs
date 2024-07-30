@@ -18,6 +18,9 @@ using System.Windows;
 using System.Windows.Forms;
 using MessageBox = System.Windows.MessageBox;
 using Parameter = FuturesAssistant.Models.Parameter;
+using System.Runtime.InteropServices.ComTypes;
+using System.Security.Principal;
+using System.Diagnostics;
 
 namespace FuturesAssistant.Helpers
 {
@@ -1661,14 +1664,12 @@ namespace FuturesAssistant.Helpers
 
 
         public static void GetStatementByRequestHtml(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, string accountId)
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount,
+            out int? tradeRows, out int? positionRows, out int? remittanceRows, out int? tradeDetailRows, out int? positionDetailRows, out int? closeTradeDetailRows,
+            string accountId)
         {
 
-            amount = null;
-            yesterdayBalance = null;
-            todayBalance = null;
-            remittance = null;
-
+            yesterdayBalance = todayBalance = remittance = amount = tradeRows = positionRows = remittanceRows = tradeDetailRows = positionDetailRows = closeTradeDetailRows = null;
             //var days = (DateTime.Today - tradeDate.Date).TotalDays;
             // 不更新今天的数据
             //if (days == 0)
@@ -1757,9 +1758,6 @@ namespace FuturesAssistant.Helpers
                     ParseHtmlStatementHomePage(tradeDate, htmlStatementHomePage, statement, out fundStatus, out remittances, out trades, out positions, out amount, accountId);
 
                     //
-                    yesterdayBalance = fundStatus.YesterdayBalance;
-                    todayBalance = fundStatus.TodayBalance;
-                    remittance = fundStatus.Remittance;
 
                     //下载Excel数据
                     LoadExcelStatement(cookie, tradeDate, settlementType, accountId);
@@ -1775,6 +1773,17 @@ namespace FuturesAssistant.Helpers
 
                     // 持仓明细
                     positionDetails = GetPositionDetailsFromHtml(cookie, tradeDate, statement, accountId);
+
+                    yesterdayBalance = fundStatus.YesterdayBalance;
+                    todayBalance = fundStatus.TodayBalance;
+                    remittance = fundStatus.Remittance;
+                    tradeRows = trades.Count;
+                    positionRows = positions.Count;
+                    remittanceRows = remittances.Count;
+                    tradeDetailRows = tradeDetails.Count;
+                    positionDetailRows = positionDetails.Count;
+                    closeTradeDetailRows = closedTradeDetails.Count;
+
 
                     //if (fundStatus.Date.Date == DateTime.Today.Date)
                     //{
@@ -1802,7 +1811,7 @@ namespace FuturesAssistant.Helpers
                     //}
                     //else
                     //{                            // 检查当天报表中明细数据是否完整。
-                        if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
+                    if (!((fundStatus.Commission != 0 && tradeDetails.Count == 0) || (fundStatus.Remittance != 0 && remittances.Count == 0)))
                         {
                             statement.FundStatus.Add(fundStatus);
                             statement.Remittance.AddRange(remittances);
@@ -1821,7 +1830,10 @@ namespace FuturesAssistant.Helpers
             {
                 if (tryCount <= 10)
                 {
-                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                    GetStatementByLoadExcel(cookie, tradeDate, SettlementType.date, statement,
+                                out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows,
+                                accountId);
                     tryCount++;
                 }
                 else
@@ -1834,7 +1846,10 @@ namespace FuturesAssistant.Helpers
             {
                 if (tryCount <= 10)
                 {
-                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                    GetStatementByLoadExcel(cookie, tradeDate, SettlementType.date, statement,
+                                out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows,
+                                accountId);
                     tryCount++;
                 }
                 else
@@ -2130,7 +2145,9 @@ namespace FuturesAssistant.Helpers
 
 
         private static void ParseExcelStatement(StatementContext statement, string excelFilePath,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittanceTotal, out decimal? amount, string accountId)
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittanceTotal, out decimal? amount,
+            out int? tradeRows, out int? positionRows, out int? remittanceRows, out int? tradeDetailRows, out int? positionDetailRows, out int? closeTradeDetailRows, 
+            string accountId)
         {
             //string tmpFilePath = excelFilePath;
             string tmpFilePath = excelFilePath + ".tmp";
@@ -2167,6 +2184,13 @@ namespace FuturesAssistant.Helpers
             var tradeDetailsTable = ds.Tables["成交明细"];
             var closedTradesTable = ds.Tables["平仓明细"];
             var positionDetailsTable = ds.Tables["持仓明细"];
+
+            List<Remittance> remittances = new List<Remittance>();
+            List<Trade> trades=new List<Trade>();
+            List<Position> positions=new List<Position>();
+            List<TradeDetail> tradeDetails = new List<TradeDetail>();
+            List<ClosedTradeDetail> closedTradeDetails = new List<ClosedTradeDetail>();
+            List<PositionDetail> positionDetails = new List<PositionDetail>();
 
             #region 客户交易结算日报
 
@@ -2306,6 +2330,7 @@ namespace FuturesAssistant.Helpers
                 rem.Summary = statementTable.Rows[remittanceIndex.Value][8].ToString();
 
                 statement.Remittance.Add(rem);
+                remittances.Add(rem);
                 remittanceIndex++;
             }
             #endregion
@@ -2340,6 +2365,7 @@ namespace FuturesAssistant.Helpers
                 trade.ClosedProfit = ToDecimal(statementTable.Rows[tradeIndex.Value][9].ToString());
 
                 statement.Trade.Add(trade);
+                trades.Add(trade);
                 tradeIndex++;
             }
             #endregion
@@ -2385,6 +2411,7 @@ namespace FuturesAssistant.Helpers
 
                 //
                 statement.Position.Add(position);
+                positions.Add(position);
                 positionIndex++;
             }
             #endregion
@@ -2476,6 +2503,7 @@ namespace FuturesAssistant.Helpers
                 tradeDetail.ActualTime = Convert.ToDateTime(string.Format("{0} {1}", tradeDetailsTable.Rows[currentRowIndex][11].ToString(), tradeDetailsTable.Rows[currentRowIndex][2].ToString()));
 
                 statement.TradeDetail.Add(tradeDetail);
+                tradeDetails.Add(tradeDetail);
                 currentRowIndex++;
             }
 
@@ -2522,6 +2550,7 @@ namespace FuturesAssistant.Helpers
                 //closedTradeDetail.ActualDate = Convert.ToDateTime(closedTradesTable.Rows[currentRowIndex][9].ToString());
 
                 statement.ClosedTradeDetail.Add(closedTradeDetail);
+                closedTradeDetails.Add(closedTradeDetail);
                 currentRowIndex++;
             }
 
@@ -2538,7 +2567,6 @@ namespace FuturesAssistant.Helpers
                 currentRowIndex++;
             }
             currentRowIndex += 2;
-            List<PositionDetail> positionDetails = new List<PositionDetail>();
             while (!positionDetailsTable.Rows[currentRowIndex][0].ToString().Trim().Equals("合计"))
             {
                 PositionDetail positionDetail = new PositionDetail();
@@ -2575,9 +2603,16 @@ namespace FuturesAssistant.Helpers
                 positionDetail.DateForActual = Convert.ToDateTime(positionDetailsTable.Rows[currentRowIndex][11].ToString());
 
                 statement.PositionDetail.Add(positionDetail);
+                positionDetails.Add(positionDetail);
                 currentRowIndex++;
             }
 
+            tradeRows = trades.Count;
+            positionRows = positions.Count;
+            remittanceRows = remittances.Count;
+            tradeDetailRows = tradeDetails.Count;
+            positionDetailRows = positionDetails.Count;
+            closeTradeDetailRows = closedTradeDetails.Count;
             #endregion
 
             File.Delete(tmpFilePath);
@@ -2619,8 +2654,11 @@ namespace FuturesAssistant.Helpers
         }
 
         private static int tryCount = 0;
-        public static void GetStatementByLoadExcel(CookieContainer cookie, DateTime tradeDate, SettlementType settlementType, StatementContext statement,
-            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount, string accountId)
+        public static void GetStatementByLoadExcel(CookieContainer cookie, 
+            DateTime tradeDate, SettlementType settlementType, StatementContext statement,
+            out decimal? yesterdayBalance, out decimal? todayBalance, out decimal? remittance, out decimal? amount,
+            out int? tradeRows, out int? positionRows, out int? remittanceRows, out int? tradeDetailRows, out int? positionDetailRows, out int? closeTradeDetailRows,
+            string accountId)
         {
             try
             {
@@ -2660,16 +2698,18 @@ namespace FuturesAssistant.Helpers
                     if (htmlStatementHomePage.IndexOf("查询系统目前不提供从今日起") == -1 && htmlStatementHomePage.IndexOf("系统中无投资者") == -1 && htmlStatementHomePage.IndexOf("为非交易日，请重新选择交易日期") == -1)
                     {
                         filePath = LoadExcelStatement(cookie, tradeDate, settlementType, accountId);
-                        ParseExcelStatement(statement, filePath, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                        ParseExcelStatement(statement, filePath, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, accountId);
                     }
                     else
                     {
-                        yesterdayBalance = todayBalance = remittance = amount = null;
+                        yesterdayBalance = todayBalance = remittance = amount =tradeRows = positionRows = remittanceRows = tradeDetailRows=positionDetailRows=closeTradeDetailRows = null;
                     }
                 }
                 else
                 {
-                    ParseExcelStatement(statement, filePath, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                    ParseExcelStatement(statement, filePath, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, accountId);
                 }
 
 
@@ -2689,7 +2729,8 @@ namespace FuturesAssistant.Helpers
             {
                 if (tryCount <= 10)
                 {
-                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, accountId);
                     tryCount++;
                 }
                 else
@@ -2702,7 +2743,8 @@ namespace FuturesAssistant.Helpers
             {
                 if (tryCount <= 10)
                 {
-                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, accountId);
+                    GetStatementByLoadExcel(cookie, tradeDate, settlementType, statement, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, accountId);
                     tryCount++;
                 }
                 else
@@ -2715,7 +2757,7 @@ namespace FuturesAssistant.Helpers
             {
                 MessageBox.Show("Helper GetStatementByLoadExcel() throw " + ex.Message);
                 //throw;
-                yesterdayBalance = todayBalance = remittance = amount = null;
+                yesterdayBalance = todayBalance = remittance = amount = tradeRows = positionRows = remittanceRows = tradeDetailRows = positionDetailRows = closeTradeDetailRows = null;
             }
         }
 

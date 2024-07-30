@@ -241,7 +241,7 @@ namespace FuturesAssistant.Windows
                 {
                     // 更新_Session.CurrentAccountId。 
                     //      注“合并账户显示”项的Id为Guid.Empty。
-                    Account acc = statement.Account.ToList().FirstOrDefault(m => m.Id .Equals( tm.Id));
+                    Account acc = statement.Account.ToList().FirstOrDefault(m => m.Id.Equals(tm.Id));
                     var selectedAccount = statement.Account.ToList().FirstOrDefault(model => model.Id.Equals(acc.Id));
                     if (selectedAccount != null)
                     {
@@ -364,8 +364,8 @@ namespace FuturesAssistant.Windows
                         if (!account.IsAllowLoad)
                         {
                             //if (lastest != null && (DateTime.Now.Date - lastest.Date.Date).TotalDays <= 60)
-                                if (lastest != null )
-                                    continue;
+                            if (lastest != null)
+                                continue;
                         }
                         if (lastest != null && lastest.Date.Date >= DateTime.Now.Date)
                         {
@@ -464,9 +464,17 @@ namespace FuturesAssistant.Windows
 
                 decimal close = 0;
                 decimal? yesterdayBalance, todayBalance, remittance, amount;
+                //var tradeDetailsTable = ds.Tables["成交明细"];
+                //var closedTradesTable = ds.Tables["平仓明细"];
+                //var positionDetailsTable = ds.Tables["持仓明细"];
+
+                //(statementTable.Rows[currentRowIndex][0].ToString().Trim().Contains("期权成交汇总"))
+                //(statementTable.Rows[currentRowIndex][0].ToString().Trim().Contains("期权持仓汇总"))
+                int? tradeRows=0, positionRows=0, remittanceRows=0, tradeDetailRows = 0, positionDetailRows = 0, closeTradeDetailRows = 0;
                 int dataCount = 0;
                 FundStatus lastFundStatus;
                 Stock lastStock;
+                DateTime lastDate = new DateTime(2000, 1, 1);
                 //
                 TransactionOptions transactionOptions = new TransactionOptions();
                 transactionOptions.IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted;
@@ -488,12 +496,19 @@ namespace FuturesAssistant.Windows
                         SetProgressText(string.Concat("【", account.AccountNumber, "】  ", startDate.ToString("yyyy年MM月dd日")));
 
                         if (parseWay == StatementParseWay.html)
-                            _Helper.GetStatementByRequestHtml(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, account.Id);
+                            _Helper.GetStatementByRequestHtml(cookie, startDate, SettlementType.date, statement,
+                                out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows,
+                                account.Id);
                         else
-                            _Helper.GetStatementByLoadExcel(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, account.Id);
+                            _Helper.GetStatementByLoadExcel(cookie, startDate, SettlementType.date, statement,
+                                out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows,
+                                account.Id);
 
                         if (yesterdayBalance.HasValue && todayBalance.HasValue && remittance.HasValue && amount.HasValue)
                         {
+                            lastDate = startDate;
                             Stock stock = new Stock();
                             stock.Id = Guid.NewGuid().ToString();
                             if (firstLine)
@@ -558,12 +573,15 @@ namespace FuturesAssistant.Windows
                         SetProgressText(string.Concat("【", account.AccountNumber, "】  ", startDate.ToString("yyyy年MM月dd日")));
 
                         if (parseWay == StatementParseWay.html)
-                            _Helper.GetStatementByRequestHtml(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, account.Id);
+                            _Helper.GetStatementByRequestHtml(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, account.Id);
                         else
-                            _Helper.GetStatementByLoadExcel(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount, account.Id);
+                            _Helper.GetStatementByLoadExcel(cookie, startDate, SettlementType.date, statement, out yesterdayBalance, out todayBalance, out remittance, out amount,
+                                out tradeRows, out positionRows, out remittanceRows, out tradeDetailRows, out positionDetailRows, out closeTradeDetailRows, account.Id);
 
                         if (yesterdayBalance.HasValue && todayBalance.HasValue && remittance.HasValue && amount.HasValue)
                         {
+                            lastDate = startDate;
                             Stock stock = new Stock();
                             stock.Id = Guid.NewGuid().ToString();
                             stock.Date = startDate.Date;
@@ -611,16 +629,36 @@ namespace FuturesAssistant.Windows
                     }
                 }
 
-                //
-                SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
-                statement.SaveChanges();
-
-
-                if (dataCount > 0)
+                //int? tradeRows, positionRows, remittanceRows, tradeDetailRows, positionDetailRows, closeTradeDetailRows;
+                if (lastDate.DayOfYear == DateTime.Now.DayOfYear)
                 {
-                    InitializeUserControlsThreadStart();
+                    var result = MessageBox.Show($"今天有交易 {tradeRows} 条，持仓 {positionRows} 条，出入金 {remittanceRows} 条，交易明细 {tradeDetailRows} 条，持仓明细 {positionDetailRows} 条，平仓明细 {closeTradeDetailRows} 条，是否保存此数据？", "数据确认", MessageBoxButton.YesNo);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
+                        statement.SaveChanges();
+
+                        if (dataCount > 0)
+                        {
+                            InitializeUserControlsThreadStart();
+                        }
+                        _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
+                    }
                 }
-                _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
+                else
+                {
+                    SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
+                    statement.SaveChanges();
+
+                    if (dataCount > 0)
+                    {
+                        InitializeUserControlsThreadStart();
+                    }
+                    _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
+                }
+
+                //
+
                 ProgressInfoHidden();
                 //}
                 //catch (Exception)

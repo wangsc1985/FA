@@ -408,7 +408,7 @@ namespace FuturesAssistant.Controls
 
         private void HideStatus()
         {
-            _textBlock实时状态.Visibility = System.Windows.Visibility.Collapsed;
+            _textBlock实时状态.Visibility = Visibility.Collapsed;
         }
 
         private string ToCommodityName(Trade trade)
@@ -429,7 +429,7 @@ namespace FuturesAssistant.Controls
         private void SetStatus(string text)
         {
             _textBlock实时状态.Text = text;
-            _textBlock实时状态.Visibility = System.Windows.Visibility.Visible;
+            _textBlock实时状态.Visibility = Visibility.Visible;
             _textBlock实时状态._Refresh();
         }
 
@@ -456,7 +456,7 @@ namespace FuturesAssistant.Controls
 
             foreach(var td in tradeList)
             {
-                strList.Add($"{td.Id}:{td.Item}:{td.Date}:{td.OC}:{td.BS}:{td.Price}:{td.Size}:{td.Commission}:{td.ClosedProfit}:{td.SH}");   
+                strList.Add($"{td.Id}:{td.Item}:{td.Date}:{td.OC}:{td.BS}:{td.Price}:{td.Size}:{td.Commission}:{td.ClosedProfit}:{td.SH}");
             }
         }
 
