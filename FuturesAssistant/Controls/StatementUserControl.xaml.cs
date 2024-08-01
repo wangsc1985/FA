@@ -345,9 +345,17 @@ namespace FuturesAssistant.Controls
 
                         tradeDetails = tradeDetails.OrderBy(m => m.ActualTime).ToList();
 
+                        decimal totalCommission = 0, totalProfit = 0, totalAmount = 0;
+                        int totalSize = 0 ;
                         tradeList = new List<Trade>();
+
                         foreach (var td in tradeDetails)
                         {
+                            totalCommission += td.Commission;
+                            totalProfit += td.ClosedProfit;
+                            totalAmount += td.Amount;
+                            totalSize += td.Size;
+
                             var trade = tradeList.FirstOrDefault(m => m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
                             if (trade == null)
                             {
@@ -373,6 +381,14 @@ namespace FuturesAssistant.Controls
                                 trade.Size += td.Size;
                             }
                         }
+                        var tt = new Trade();
+                        tt.Item = "【合计】";
+                        tt.SH = (totalProfit - totalCommission).ToString("N");
+                        tt.ClosedProfit = totalProfit;
+                        tt.Commission = totalCommission;
+                        tt.Amount = totalAmount;
+                        tt.Size = totalSize;
+                        tradeList.Add(tt);
 
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {

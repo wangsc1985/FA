@@ -608,32 +608,45 @@ namespace FuturesAssistant.Windows
                     }
                 }
 
-
-                // 复权处理
-                var stocks = statement.Stock.Where(s => s.AccountId == account.Id).OrderBy(s => s.Date);
-                lastStock = stocks.ToList().LastOrDefault();
-                lastFundStatus = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderBy(fs => fs.Date).ToList().LastOrDefault();
-                if (lastStock != null && lastFundStatus != null)
-                {
-                    decimal tmp = lastStock.Close - lastFundStatus.TodayBalance;
-                    if (tmp != 0)
+                if (dataCount > 0)
+                {                // 复权处理
+                    var stocks = statement.Stock.Where(s => s.AccountId == account.Id).OrderBy(s => s.Date);
+                    lastStock = stocks.ToList().LastOrDefault();
+                    lastFundStatus = statement.FundStatus.Where(fs => fs.AccountId == account.Id).OrderBy(fs => fs.Date).ToList().LastOrDefault();
+                    if (lastStock != null && lastFundStatus != null)
                     {
-                        SetProgressText(string.Format("<{0}>图表复权...", account.AccountNumber));
-                        foreach (var stock in stocks)
+                        decimal tmp = lastStock.Close - lastFundStatus.TodayBalance;
+                        if (tmp != 0)
                         {
-                            stock.Open -= tmp;
-                            stock.High -= tmp;
-                            stock.Low -= tmp;
-                            stock.Close -= tmp;
+                            SetProgressText(string.Format("<{0}>图表复权...", account.AccountNumber));
+                            foreach (var stock in stocks)
+                            {
+                                stock.Open -= tmp;
+                                stock.High -= tmp;
+                                stock.Low -= tmp;
+                                stock.Close -= tmp;
+                            }
                         }
                     }
-                }
 
-                //int? tradeRows, positionRows, remittanceRows, tradeDetailRows, positionDetailRows, closeTradeDetailRows;
-                if (lastDate.DayOfYear == DateTime.Now.DayOfYear)
-                {
-                    var result = MessageBox.Show($"今天有交易 {tradeRows} 条，持仓 {positionRows} 条，出入金 {remittanceRows} 条，交易明细 {tradeDetailRows} 条，持仓明细 {positionDetailRows} 条，平仓明细 {closeTradeDetailRows} 条，是否保存此数据？", "数据确认", MessageBoxButton.YesNo);
-                    if (result == MessageBoxResult.Yes)
+                    //int? tradeRows, positionRows, remittanceRows, tradeDetailRows, positionDetailRows, closeTradeDetailRows;
+
+                    if (lastDate.DayOfYear == DateTime.Now.DayOfYear)
+                    {
+                        var result = MessageBox.Show($"今天有交易 {tradeRows} 条，持仓 {positionRows} 条，出入金 {remittanceRows} 条，交易明细 {tradeDetailRows} 条，持仓明细 {positionDetailRows} 条，平仓明细 {closeTradeDetailRows} 条，是否保存此数据？", "数据确认", MessageBoxButton.YesNo);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
+                            statement.SaveChanges();
+
+                            if (dataCount > 0)
+                            {
+                                InitializeUserControlsThreadStart();
+                            }
+                            _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
+                        }
+                    }
+                    else
                     {
                         SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
                         statement.SaveChanges();
@@ -644,17 +657,6 @@ namespace FuturesAssistant.Windows
                         }
                         _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
                     }
-                }
-                else
-                {
-                    SetProgressText(string.Format("<{0}>保存数据...", account.AccountNumber));
-                    statement.SaveChanges();
-
-                    if (dataCount > 0)
-                    {
-                        InitializeUserControlsThreadStart();
-                    }
-                    _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
                 }
 
                 //
