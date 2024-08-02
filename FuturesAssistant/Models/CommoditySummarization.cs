@@ -43,6 +43,15 @@ namespace FuturesAssistant.Models
         /// </summary>
         public decimal ClosedProfit { get; set; }
         /// <summary>
+        /// 平仓盈亏+手续费
+        /// </summary>
+        public decimal TotalProfit { 
+            get
+            {
+                return ClosedProfit - Commission;
+            }
+        }
+        /// <summary>
         /// 外键
         /// </summary>
         [Required(ErrorMessage = "账户外键不能为空！")]

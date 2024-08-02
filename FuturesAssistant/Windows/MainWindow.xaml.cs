@@ -464,12 +464,7 @@ namespace FuturesAssistant.Windows
 
                 decimal close = 0;
                 decimal? yesterdayBalance, todayBalance, remittance, amount;
-                //var tradeDetailsTable = ds.Tables["成交明细"];
-                //var closedTradesTable = ds.Tables["平仓明细"];
-                //var positionDetailsTable = ds.Tables["持仓明细"];
 
-                //(statementTable.Rows[currentRowIndex][0].ToString().Trim().Contains("期权成交汇总"))
-                //(statementTable.Rows[currentRowIndex][0].ToString().Trim().Contains("期权持仓汇总"))
                 int? tradeRows=0, positionRows=0, remittanceRows=0, tradeDetailRows = 0, positionDetailRows = 0, closeTradeDetailRows = 0;
                 int dataCount = 0;
                 FundStatus lastFundStatus;
@@ -479,9 +474,6 @@ namespace FuturesAssistant.Windows
                 TransactionOptions transactionOptions = new TransactionOptions();
                 transactionOptions.IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted;
                 transactionOptions.Timeout = new TimeSpan(0, 30, 0);
-                //using (TransactionScope ts = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                //{
-
 
 
                 lastStock = statement.Stock.Where(s => s.AccountId == account.Id).OrderByDescending(s => s.Date).ToList().FirstOrDefault();
@@ -559,10 +551,6 @@ namespace FuturesAssistant.Windows
                 else
                 {
                     startDate = lastStock.Date.AddDays(1).Date;
-                    //if ((endDate - startDate).Days > 365)
-                    //{
-                    //    endDate = startDate.AddDays(365);
-                    //}
 
 
                     ProgressInfoVisible((endDate - startDate).Days + 1);
@@ -629,7 +617,6 @@ namespace FuturesAssistant.Windows
                         }
                     }
 
-                    //int? tradeRows, positionRows, remittanceRows, tradeDetailRows, positionDetailRows, closeTradeDetailRows;
 
                     if (lastDate.DayOfYear == DateTime.Now.DayOfYear)
                     {
@@ -658,23 +645,12 @@ namespace FuturesAssistant.Windows
                         _settingUserControl.AddLog(string.Format("账户<{0}>下载数据完毕，新增 {1} 天数据。", account.AccountNumber, dataCount));
                     }
                 }
-
-                //
+                else
+                {
+                    MessageBox.Show("没有新数据！");
+                }
 
                 ProgressInfoHidden();
-                //}
-                //catch (Exception)
-                //{
-                //    throw;
-                //}
-                //finally
-                //{
-                //    this.ProgressInfoHidden();
-                //}
-
-
-                // 备份数据至邮箱。
-                //MailYunBackup(true);
             }
         }
 

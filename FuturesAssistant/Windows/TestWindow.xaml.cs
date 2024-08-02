@@ -221,7 +221,7 @@ namespace FuturesAssistant.Windows
                             var today = values[8];
                             var profit = values[9];
                             var margin = values[10];
-                            var type = "投机";
+                            //var type = "投机";
 
 
                             //Console.Write("持仓日期：");
@@ -389,7 +389,7 @@ namespace FuturesAssistant.Windows
                             var date1 = date;
                             var openDate = values[4];
                             var item = values[3];
-                            var no = "";
+                            //var no = "";
                             var bs = values[6];
 
 
@@ -409,8 +409,8 @@ namespace FuturesAssistant.Windows
                             var yes = values[9];
                             var today = values[10];
                             var profit = values[11];
-                            var type = "投机";
-                            var bianma = "";
+                            //var type = "投机";
+                            //var bianma = "";
                         }
                     }
 

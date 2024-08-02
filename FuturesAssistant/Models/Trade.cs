@@ -23,6 +23,21 @@ namespace FuturesAssistant.Models
         /// </summary>
         public DateTime Date { get; set; }
         /// <summary>
+        /// 交易日期
+        /// </summary>
+        public string DateStr { 
+            get { 
+                if(Date>new DateTime(1900, 1, 1))
+                {
+                    return Date.ToShortDateString();
+                }
+                else
+                {
+                    return "合计";
+                }
+            } 
+        }
+        /// <summary>
         /// 合约
         /// </summary>
         public string Item { get; set; }
@@ -38,6 +53,20 @@ namespace FuturesAssistant.Models
         /// 成交价
         /// </summary>
         public decimal Price { get; set; }
+        public string PriceStr
+        {
+            get
+            {
+                if (Date > new DateTime(1900, 1, 1))
+                {
+                    return Price.ToString("n");
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
         /// <summary>
         /// 手数
         /// </summary>
@@ -46,6 +75,20 @@ namespace FuturesAssistant.Models
         /// 成交额
         /// </summary>
         public decimal Amount { get; set; }
+        public string AmountStr
+        {
+            get
+            {
+                if (Date > new DateTime(1900, 1, 1))
+                {
+                    return Amount.ToString("n");
+                }
+                else
+                {
+                    return "";
+                }
+            }
+        }
         /// <summary>
         /// 手续费
         /// </summary>
@@ -58,6 +101,10 @@ namespace FuturesAssistant.Models
         /// 平仓盈亏（未平仓的交易值null）
         /// </summary>
         public decimal ClosedProfit { get; set; }
+        /// <summary>
+        /// 平仓盈亏+手续费（未平仓的交易值null）
+        /// </summary>
+        public decimal TotalProfit { get { return ClosedProfit - Commission; } }
         /// <summary>
         /// 外键
         /// </summary>

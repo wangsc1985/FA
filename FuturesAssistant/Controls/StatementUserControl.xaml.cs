@@ -226,6 +226,7 @@ namespace FuturesAssistant.Controls
         }
 
         private List<Trade> tradeList = new List<Trade>();
+        private List<CommoditySummarization> commoditySummarizationList = new List<CommoditySummarization>();
         private void Query(bool isFromListSelected = false)
         {
             try
@@ -382,13 +383,34 @@ namespace FuturesAssistant.Controls
                             }
                         }
                         var tt = new Trade();
-                        tt.Item = "【合计】";
-                        tt.SH = (totalProfit - totalCommission).ToString("N");
                         tt.ClosedProfit = totalProfit;
                         tt.Commission = totalCommission;
-                        tt.Amount = totalAmount;
                         tt.Size = totalSize;
                         tradeList.Add(tt);
+
+                        commoditySummarizationList = new List<CommoditySummarization>();
+                        foreach (var comm in commoditys)
+                        {
+                            var tmp = commoditySummarizationList.FirstOrDefault(m => m.Commodity ==ToCommodityName(comm.Commodity));
+                            if(tmp == null)
+                            {
+                                var commodity = new CommoditySummarization();
+                                commodity.Commission = comm.Commission;
+                                commodity.Commodity = ToCommodityName(comm.Commodity);
+                                commodity.AccountId = comm.AccountId;
+                                commodity.ClosedProfit = comm.ClosedProfit;
+                                commodity.Date = comm.Date;
+                                commodity.Size = comm.Size;
+                                commoditySummarizationList.Add(commodity);
+                            }
+                            else
+                            {
+                                tmp.Commission += comm.Commission;
+                                tmp.ClosedProfit += comm.ClosedProfit;
+                                tmp.Date = comm.Date;
+                                tmp.Size += comm.Size;
+                            }
+                        }
 
                         Dispatcher.Invoke(new FormControlInvoker(() =>
                         {
@@ -405,7 +427,7 @@ namespace FuturesAssistant.Controls
                             _dataGrid出入金明细.ItemsSource = remittances;
                             _dataGrid成交汇总.ItemsSource = tradeList;
                             _dataGrid持仓汇总.ItemsSource = positions;
-                            _dataGrid品种汇总.ItemsSource = commoditys;
+                            _dataGrid品种汇总.ItemsSource = commoditySummarizationList;
                             _dataGrid成交明细.ItemsSource = tradeDetails;
                             _dataGrid平仓明细.ItemsSource = closedTradeDetails;
                             _dataGrid持仓明细.ItemsSource = positionDetails;
@@ -429,11 +451,16 @@ namespace FuturesAssistant.Controls
 
         private string ToCommodityName(Trade trade)
         {
-            var code =  trade.Item.Replace("0", "").Replace("1", "").Replace("2", "").Replace("3", "").Replace("4", "")
+            var code = trade.Item.Replace("0", "").Replace("1", "").Replace("2", "").Replace("3", "").Replace("4", "")
                 .Replace("5", "").Replace("6", "").Replace("7", "").Replace("8", "").Replace("9", "").ToLower();
-            using(var context = new StatementContext())
+
+            return ToCommodityName(code);
+        }
+        private string ToCommodityName(string commodityCode)
+        {
+            using (var context = new StatementContext())
             {
-                var comm = context.Commodity.FirstOrDefault(com => com.Code.ToLower().Equals(code.ToLower()));
+                var comm = context.Commodity.FirstOrDefault(com => com.Code.ToLower().Equals(commodityCode.ToLower()));
                 if (comm != null)
                 {
                     return comm.Name;

@@ -106,16 +106,17 @@
                     <TabItem Name="_tabPage成交汇总"  Header="成交汇总">
                         <DataGrid Name="_dataGrid成交汇总"  FontFamily="Consolas">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="日期" Binding="{Binding Date, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
+                                <DataGridTextColumn Header="日期" Binding="{Binding DateStr, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd}}" />
                                 <DataGridTextColumn Header="合约" Binding="{Binding Item, Mode=OneWay}" />
                                 <DataGridTextColumn Header="买卖" Binding="{Binding BS, Mode=OneWay}" />
                                 <DataGridTextColumn Header="投机套保" Binding="{Binding SH, Mode=OneWay}" />
-                                <DataGridTextColumn Header="成交价" Binding="{Binding Price, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="成交价" Binding="{Binding PriceStr, Mode=OneWay, StringFormat={}{0:n}}" />
                                 <DataGridTextColumn Header="手数" Binding="{Binding Size, Mode=OneWay}" />
-                                <DataGridTextColumn Header="成交额" Binding="{Binding Amount, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="成交额" Binding="{Binding AmountStr, Mode=OneWay, StringFormat={}{0:n}}" />
                                 <DataGridTextColumn Header="开平" Binding="{Binding OC, Mode=OneWay}" />
                                 <DataGridTextColumn Header="手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}" />
                                 <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="盈亏合计" Binding="{Binding TotalProfit, Mode=OneWay, StringFormat={}{0:n}}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
@@ -197,6 +198,7 @@
                                 <DataGridTextColumn Header="成交额" Binding="{Binding Amount, Mode=OneWay, StringFormat={}{0:n}}" />
                                 <DataGridTextColumn Header="手续费" Binding="{Binding Commission, Mode=OneWay, StringFormat={}{0:n}}" />
                                 <DataGridTextColumn Header="平仓盈亏" Binding="{Binding ClosedProfit, Mode=OneWay, StringFormat={}{0:n}}" />
+                                <DataGridTextColumn Header="盈亏合计" Binding="{Binding TotalProfit, Mode=OneWay, StringFormat={}{0:n}}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
