@@ -861,6 +861,10 @@ namespace FuturesAssistant.Controls
                             CommodityProfit cp = new CommodityProfit();
                             cp.Commodity = Item2Commodity(td.Item);
                             cp.Profit = td.ClosedProfit;
+                            if (cp.Commodity.ToUpper() == "SR")
+                            {
+                                int a = 0;
+                            }
                             if (commodityProfits.Contains(cp))
                             {
                                 commodityProfits.FirstOrDefault(c => c.Commodity.Equals(cp.Commodity)).Profit += cp.Profit;
