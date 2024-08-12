@@ -38,6 +38,7 @@ namespace FuturesAssistant.Windows
         {
             try
             {
+                _Session.NeedRefreshMarginControl = true;
                 this.loginWindowHandler = loginWindowHandler;
                 InitializeComponent();
                 Initialize();
@@ -68,6 +69,7 @@ namespace FuturesAssistant.Windows
                 SettingDialog settingDialog = new SettingDialog(this);
                 settingDialog.ShowDialog();
             };
+            _tabControlMain.SelectedIndex = Int32.Parse(_Helper.GetParameter("main_tab_selected_index", "0"));
         }
 
         private void Initialize()
@@ -153,36 +155,36 @@ namespace FuturesAssistant.Windows
         {
             try
             {
-                if (_tabControlMain.SelectedItem == _tabItem资金曲线 && _Session.NeedRefreshStockControl)
-                {
-                    //
-                    LoadingControlVisible();
-                    _stockChartUserControl.Initialize();
-                    LoadingControlHide();
+                //if (_tabControlMain.SelectedItem == _tabItem资金曲线 && _Session.NeedRefreshStockControl)
+                //{
+                //    //
+                //    LoadingControlVisible();
+                //    _stockChartUserControl.Initialize();
+                //    LoadingControlHide();
 
-                    //
-                    _Session.NeedRefreshStockControl = false;
-                }
-                else if (_tabControlMain.SelectedItem == _tabItem统计图表 && _Session.NeedRefreshStatisticsControl)
-                {
-                    //
-                    LoadingControlVisible();
-                    _statisticsUserControl.Initialize();
-                    LoadingControlHide();
+                //    //
+                //    _Session.NeedRefreshStockControl = false;
+                //}
+                //else if (_tabControlMain.SelectedItem == _tabItem统计图表 && _Session.NeedRefreshStatisticsControl)
+                //{
+                //    //
+                //    LoadingControlVisible();
+                //    _statisticsUserControl.Initialize();
+                //    LoadingControlHide();
 
-                    //
-                    _Session.NeedRefreshStatisticsControl = false;
-                }
-                else if (_tabControlMain.SelectedItem == _tabItem客户结单 && _Session.NeedRefreshStatementControl)
-                {
-                    //
-                    LoadingControlVisible();
-                    _statementUserControl.Initialize();
-                    LoadingControlHide();
+                //    //
+                //    _Session.NeedRefreshStatisticsControl = false;
+                //}
+                //else if (_tabControlMain.SelectedItem == _tabItem客户结单 && _Session.NeedRefreshStatementControl)
+                //{
+                //    //
+                //    LoadingControlVisible();
+                //    _statementUserControl.Initialize();
+                //    LoadingControlHide();
 
-                    //
-                    _Session.NeedRefreshStatementControl = false;
-                }
+                //    //
+                //    _Session.NeedRefreshStatementControl = false;
+                //}
                 if (_Session.NeedRefreshMarginControl)
                 {
                     //
@@ -190,6 +192,10 @@ namespace FuturesAssistant.Windows
 
                     //
                     _Session.NeedRefreshMarginControl = false;
+                }
+                else
+                {
+                    _Helper.SetParameter("main_tab_selected_index", _tabControlMain.SelectedIndex + "");
                 }
             }
             catch (Exception ex)
@@ -730,6 +736,5 @@ namespace FuturesAssistant.Windows
 
             }
         }
-
     }
 }

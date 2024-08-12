@@ -11,6 +11,8 @@ namespace FuturesAssistant.Types
 
         public decimal Profit { get; set; }
 
+        public decimal Commission { get; set; }
+
         public override bool Equals(object obj)
         {
             CommodityProfit cp = obj as CommodityProfit;

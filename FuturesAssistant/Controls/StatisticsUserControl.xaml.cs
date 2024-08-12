@@ -663,7 +663,7 @@ namespace FuturesAssistant.Controls
                         //
                         List<ClosedTradeStatistics> closedTradeStatistics = new List<ClosedTradeStatistics>();
                         DateTime startDate1 = startDate.Value.Date;
-                        DateTime endDate1 = endDate.Value.AddDays(1);
+                        DateTime endDate1 = endDate.Value.Date.AddDays(1);
                         //
                         var closedTradeDetails = statement.ClosedTradeDetail
                             .Where(ctd => ctd.AccountId == _Session.SelectedAccountId && ctd.ActualDate <= endDate1 && ctd.ActualDate >= startDate1)
@@ -833,7 +833,7 @@ namespace FuturesAssistant.Controls
                     // 多、空、盈、亏、手续费、交易偏好统计
                     //
                     DateTime startDate2 = startDate.Value.Date;
-                    DateTime endDate2 = endDate.Value.AddDays(1);
+                    DateTime endDate2 = endDate.Value.Date.AddDays(1);
                     var tradeDetails = statement.TradeDetail.Where(td => td.ActualTime <= endDate2 && td.ActualTime >= startDate2 && td.AccountId == _Session.SelectedAccountId).OrderBy(td => td.ActualTime);
 
                     foreach (var td in tradeDetails)
@@ -857,22 +857,6 @@ namespace FuturesAssistant.Controls
                                 else
                                     shortLoss += td.ClosedProfit;
                             }
-                            //
-                            CommodityProfit cp = new CommodityProfit();
-                            cp.Commodity = Item2Commodity(td.Item);
-                            cp.Profit = td.ClosedProfit;
-                            if (cp.Commodity.ToUpper() == "SR")
-                            {
-                                int a = 0;
-                            }
-                            if (commodityProfits.Contains(cp))
-                            {
-                                commodityProfits.FirstOrDefault(c => c.Commodity.Equals(cp.Commodity)).Profit += cp.Profit;
-                            }
-                            else
-                            {
-                                commodityProfits.Add(cp);
-                            }
                         }
                         else
                         {
@@ -893,6 +877,21 @@ namespace FuturesAssistant.Controls
                                 longAmount += td.Amount;
                             if (td.BS.Equals("卖"))
                                 shortAmount += td.Amount;
+                        }
+                        //
+                        CommodityProfit cp = new CommodityProfit();
+                        cp.Commodity = Item2Commodity(td.Item);
+                        cp.Profit = td.ClosedProfit-td.Commission;
+                        cp.Commission = td.Commission;
+                        if (commodityProfits.Contains(cp))
+                        {
+                            var aa = commodityProfits.FirstOrDefault(c => c.Commodity.Equals(cp.Commodity));
+                            aa.Profit += cp.Profit;
+                            aa.Commission += cp.Commission;
+                        }
+                        else
+                        {
+                            commodityProfits.Add(cp);
                         }
                         commission += td.Commission;
                     }
@@ -1275,7 +1274,7 @@ namespace FuturesAssistant.Controls
 
                             dataPoint.Label = label;
                             //dataPoint.AxisLabel = commodityProfits[i].Commodity;
-                            dataPoint.ToolTip = string.Format("{0}：{1:n}", commodityProfits[i].Commodity, commodityProfits[i].Profit);
+                            dataPoint.ToolTip = string.Format("{0}：盈利：{1:n}   手续费：{2:n}", commodityProfits[i].Commodity, commodityProfits[i].Profit, commodityProfits[i].Commission);
                             dataPoint.BackGradientStyle = GradientStyle.None;
                             dataPoint.BackHatchStyle = ChartHatchStyle.None;
                             dataPoint.BorderColor = System.Drawing.Color.Transparent;

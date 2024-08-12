@@ -349,6 +349,7 @@ namespace FuturesAssistant.Controls
                         decimal totalCommission = 0, totalProfit = 0, totalAmount = 0;
                         int totalSize = 0 ;
                         tradeList = new List<Trade>();
+                        var isOpen = "";
 
                         foreach (var td in tradeDetails)
                         {
@@ -357,7 +358,7 @@ namespace FuturesAssistant.Controls
                             totalAmount += td.Amount;
                             totalSize += td.Size;
 
-                            var trade = tradeList.FirstOrDefault(m => m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
+                            var trade = tradeList.FirstOrDefault(m =>m.OC.Equals(isOpen)&&m.Date.DayOfYear==td.ActualTime.DayOfYear&& m.Item.Equals(td.Item) && m.OC == td.OC && m.BS == td.BS && m.Price == td.Price);
                             if (trade == null)
                             {
                                 trade = new Trade();
@@ -381,8 +382,10 @@ namespace FuturesAssistant.Controls
                                 trade.Date = td.ActualTime;
                                 trade.Size += td.Size;
                             }
+                            isOpen = td.OC;
                         }
                         var tt = new Trade();
+                        tt.Date = DateTime.Now;
                         tt.ClosedProfit = totalProfit;
                         tt.Commission = totalCommission;
                         tt.Size = totalSize;
@@ -425,7 +428,7 @@ namespace FuturesAssistant.Controls
                             _loading.Visibility = Visibility.Hidden;
                             _dataGrid资金状况.ItemsSource = fundStatus;
                             _dataGrid出入金明细.ItemsSource = remittances;
-                            _dataGrid成交汇总.ItemsSource = tradeList;
+                            _dataGrid成交汇总.ItemsSource = tradeList.OrderBy(m=>m.Date).ToList();
                             _dataGrid持仓汇总.ItemsSource = positions;
                             _dataGrid品种汇总.ItemsSource = commoditySummarizationList;
                             _dataGrid成交明细.ItemsSource = tradeDetails;

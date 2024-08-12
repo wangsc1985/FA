@@ -49,7 +49,7 @@
             <Grid x:Name="_mainWindowLoading"  Opacity="0.5" Background="White" Panel.ZIndex="1" Visibility="Hidden"/>
 
             <!-- TabControl数据区 -->
-            <TabControl Name="_tabControlMain" Style="{StaticResource MainTabControl}" >
+            <TabControl Name="_tabControlMain" Style="{StaticResource MainTabControl}" SelectionChanged="_tabControlMain_SelectionChanged">
                 <TabItem Name="_tabItem资金曲线" Style="{StaticResource MainTabItem}"  Header="资金曲线">
                     <Grid>
                         <Controls:StockChartUserControl x:Name="_stockChartUserControl"/>
